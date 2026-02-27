@@ -862,357 +862,408 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3xVQZqECrpT9sOOuyA04s-vndCAAwMRRJz3ONNRKTugts5z1nuVqbwsBy4853xCN2/exec';
+    // ============================================
+// CONFIGURACIÓN
+// ============================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3xVQZqECrpT9sOOuyA04s-vndCAAwMRRJz3ONNRKTugts5z1nuVqbwsBy4853xCN2/exec';
 
-    const serviceConfig = {
-      electricidad: {
-        name: "electricidad · instalación y reparación",
-        icon: "⚡",
-        questions: [
-          { id: "p1", label: "¿Qué necesitas?", options: ["Instalación nueva", "Reparación / Falla", "Tablero eléctrico", "Tierra física", "Corto circuito", "Sin luz parcial", "Cambio de pastillas"] },
-          { id: "p2", label: "tipo de inmueble", options: ["casa", "oficina", "local comercial", "industria"] },
-          { id: "p3", label: "urgencia", options: ["hoy (emergencia)", "mañana", "esta semana", "programar"] }
-        ]
-      },
-      minisplit: {
-        name: "climas · refrigeración",
-        icon: "❄️",
-        questions: [
-          { id: "p1", label: "¿Qué necesitas?", options: ["Instalación de minisplit", "Mantenimiento / Limpieza", "Reparación / Falla", "Carga de gas", "No enfría", "Ruido anómalo", "Gotea agua", "No enciende"] },
-          { id: "p2", label: "ubicación del equipo", options: ["casa", "oficina", "local comercial", "industria"] },
-          { id: "p3", label: "urgencia", options: ["hoy (emergencia)", "mañana", "esta semana", "programar"] },
-          { id: "p4", label: "cantidad de equipos", options: ["1", "2", "3-5", "+5"] }
-        ]
-      },
-      plomeria: {
-        name: "plomería",
-        icon: "🚰",
-        questions: [
-          { id: "p1", label: "problema", options: ["caño tapado", "fuga de agua", "wc tapado", "grifo gotea", "tubería rota"] },
-          { id: "p2", label: "zona afectada", options: ["cocina", "baño", "patio", "exterior"] },
-          { id: "p3", label: "urgencia", options: ["inundación", "hoy", "mañana", "esta semana"] }
-        ]
-      },
-      paneles: {
-        name: "paneles solares",
-        icon: "☀️",
-        questions: [
-          { id: "p1", label: "servicio", options: ["instalación nueva", "mantenimiento", "limpieza", "diagnóstico de falla"] },
-          { id: "p2", label: "tipo de inmueble", options: ["casa", "negocio", "industria", "campo"] },
-          { id: "p3", label: "sistema actual", options: ["ya tengo paneles", "quiero cotizar nuevo", "no estoy seguro"] },
-          { id: "p4", label: "urgencia", options: ["hoy", "esta semana", "programar", "solo información"] }
-        ]
-      },
-      general: {
-        name: "servicio técnico general",
-        icon: "🔧",
-        questions: [
-          { id: "p1", label: "tipo de servicio", options: ["reparación", "instalación", "diagnóstico", "mantenimiento"] },
-          { id: "p2", label: "descripción breve", options: ["eléctrico", "clima", "plomería", "otro"] },
-          { id: "p3", label: "urgencia", options: ["hoy", "mañana", "esta semana", "cotización"] }
-        ]
-      },
-      otro: {
-        name: "otro servicio",
-        icon: "❓",
-        questions: [
-          { id: "p1", label: "describe brevemente lo que necesitas", options: ["asesoría", "cotización", "revisión", "información"] },
-          { id: "p2", label: "tipo de servicio", options: ["particular", "empresa", "obra nueva", "mantenimiento"] },
-          { id: "p3", label: "urgencia", options: ["hoy", "esta semana", "programar", "solo información"] }
-        ]
-      }
-    };
+// ============================================
+// VARIABLES GLOBALES
+// ============================================
+let currentService = null;
+let answers = {};
+let currentStep = 0;
+let totalSteps = 0;
+let folioActual = null; // 🎯 UN SOLO FOLIO POR COTIZACIÓN
 
-    let currentService = null;
-    let answers = {};
-    let currentStep = 0;
-    let totalSteps = 0;
-    let clientData = {
-      nombre: '',
-      telefono: '',
-      direccion: '',
-      whatsapp: ''
-    };
+let clientData = {
+  nombre: '',
+  telefono: '',
+  direccion: '',
+  whatsapp: ''
+};
 
-    function toggleCard(id) {
-      const card = document.getElementById(id);
-      if (card) {
-        card.classList.toggle('expanded');
-      }
-    }
+// ============================================
+// CONFIGURACIÓN DE SERVICIOS
+// ============================================
+const serviceConfig = {
+  electricidad: {
+    name: "electricidad · instalación y reparación",
+    icon: "⚡",
+    questions: [
+      { id: "p1", label: "¿Qué necesitas?", options: ["Instalación nueva", "Reparación / Falla", "Tablero eléctrico", "Tierra física", "Corto circuito", "Sin luz parcial", "Cambio de pastillas"] },
+      { id: "p2", label: "tipo de inmueble", options: ["casa", "oficina", "local comercial", "industria"] },
+      { id: "p3", label: "urgencia", options: ["hoy (emergencia)", "mañana", "esta semana", "programar"] }
+    ]
+  },
+  minisplit: {
+    name: "climas · refrigeración",
+    icon: "❄️",
+    questions: [
+      { id: "p1", label: "¿Qué necesitas?", options: ["Instalación de minisplit", "Mantenimiento / Limpieza", "Reparación / Falla", "Carga de gas", "No enfría", "Ruido anómalo", "Gotea agua", "No enciende"] },
+      { id: "p2", label: "ubicación del equipo", options: ["casa", "oficina", "local comercial", "industria"] },
+      { id: "p3", label: "urgencia", options: ["hoy (emergencia)", "mañana", "esta semana", "programar"] },
+      { id: "p4", label: "cantidad de equipos", options: ["1", "2", "3-5", "+5"] }
+    ]
+  },
+  plomeria: {
+    name: "plomería",
+    icon: "🚰",
+    questions: [
+      { id: "p1", label: "problema", options: ["caño tapado", "fuga de agua", "wc tapado", "grifo gotea", "tubería rota"] },
+      { id: "p2", label: "zona afectada", options: ["cocina", "baño", "patio", "exterior"] },
+      { id: "p3", label: "urgencia", options: ["inundación", "hoy", "mañana", "esta semana"] }
+    ]
+  },
+  paneles: {
+    name: "paneles solares",
+    icon: "☀️",
+    questions: [
+      { id: "p1", label: "servicio", options: ["instalación nueva", "mantenimiento", "limpieza", "diagnóstico de falla"] },
+      { id: "p2", label: "tipo de inmueble", options: ["casa", "negocio", "industria", "campo"] },
+      { id: "p3", label: "sistema actual", options: ["ya tengo paneles", "quiero cotizar nuevo", "no estoy seguro"] },
+      { id: "p4", label: "urgencia", options: ["hoy", "esta semana", "programar", "solo información"] }
+    ]
+  },
+  general: {
+    name: "servicio técnico general",
+    icon: "🔧",
+    questions: [
+      { id: "p1", label: "tipo de servicio", options: ["reparación", "instalación", "diagnóstico", "mantenimiento"] },
+      { id: "p2", label: "descripción breve", options: ["eléctrico", "clima", "plomería", "otro"] },
+      { id: "p3", label: "urgencia", options: ["hoy", "mañana", "esta semana", "cotización"] }
+    ]
+  },
+  otro: {
+    name: "otro servicio",
+    icon: "❓",
+    questions: [
+      { id: "p1", label: "describe brevemente lo que necesitas", options: ["asesoría", "cotización", "revisión", "información"] },
+      { id: "p2", label: "tipo de servicio", options: ["particular", "empresa", "obra nueva", "mantenimiento"] },
+      { id: "p3", label: "urgencia", options: ["hoy", "esta semana", "programar", "solo información"] }
+    ]
+  }
+};
 
-    function openModal(key) {
-      currentService = key;
-      answers = {};
-      clientData = { nombre: '', telefono: '', direccion: '', whatsapp: '' };
-      currentStep = 0;
+// ============================================
+// FUNCIÓN PARA GENERAR FOLIO (UNA SOLA VEZ)
+// ============================================
+function generarFolio() {
+  const ahora = new Date();
+  const year = ahora.getFullYear().toString().slice(-2);
+  const month = (ahora.getMonth() + 1).toString().padStart(2, '0');
+  const day = ahora.getDate().toString().padStart(2, '0');
+  const random = Math.floor(Math.random() * 9000 + 1000);
+  return `HZ-${year}${month}${day}-${random}`;
+}
 
-      const cfg = serviceConfig[key];
-      totalSteps = cfg.questions.length + 3;
+// ============================================
+// FUNCIONES DEL MODAL
+// ============================================
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  if (card) card.classList.toggle('expanded');
+}
 
-      document.getElementById('modalIcon').innerText = cfg.icon;
-      document.getElementById('modalServiceName').innerText = cfg.name;
-      document.getElementById('stepIndicator').innerText = `Paso 1 / ${totalSteps}`;
+function openModal(key) {
+  currentService = key;
+  answers = {};
+  clientData = { nombre: '', telefono: '', direccion: '', whatsapp: '' };
+  currentStep = 0;
+  
+  // 🎯 GENERAR FOLIO AL ABRIR EL MODAL (UNA SOLA VEZ)
+  folioActual = generarFolio();
+  console.log('📌 Folio asignado a esta cotización:', folioActual);
+  
+  // Guardar en localStorage por si acaso
+  localStorage.setItem('folio_actual', folioActual);
 
-      renderStep();
+  const cfg = serviceConfig[key];
+  totalSteps = cfg.questions.length + 3;
 
-      document.getElementById('diagnosticModal').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
+  document.getElementById('modalIcon').innerText = cfg.icon;
+  document.getElementById('modalServiceName').innerText = cfg.name;
+  document.getElementById('stepIndicator').innerText = `Paso 1 / ${totalSteps}`;
 
-    function renderStep() {
-      const cfg = serviceConfig[currentService];
-      const container = document.getElementById('questionsContainer');
-      const whatsappBtn = document.getElementById('whatsappBtn');
-      const modalNav = document.querySelector('.modal-nav');
+  renderStep();
+  document.getElementById('diagnosticModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
 
-      whatsappBtn.style.display = 'none';
-      modalNav.style.display = 'flex';
+function renderStep() {
+  const cfg = serviceConfig[currentService];
+  const container = document.getElementById('questionsContainer');
+  const whatsappBtn = document.getElementById('whatsappBtn');
+  const modalNav = document.querySelector('.modal-nav');
 
-      if (currentStep < cfg.questions.length) {
-        const question = cfg.questions[currentStep];
-        let html = `
-          <div class="question-block">
-            <label class="question-label">${currentStep + 1}. ${question.label}</label>
-            <div class="options-grid" id="q-${question.id}">
-        `;
+  whatsappBtn.style.display = 'none';
+  modalNav.style.display = 'flex';
 
-        question.options.forEach(opt => {
-          const isSelected = answers[question.id] === opt;
-          html += `<button class="option-btn ${isSelected ? 'selected' : ''}" onclick="selectOption('${question.id}', '${opt}', this)">${opt}</button>`;
-        });
+  if (currentStep < cfg.questions.length) {
+    const question = cfg.questions[currentStep];
+    let html = `
+      <div class="question-block">
+        <label class="question-label">${currentStep + 1}. ${question.label}</label>
+        <div class="options-grid" id="q-${question.id}">
+    `;
 
-        html += `</div></div>`;
-        container.innerHTML = html;
-
-      } else if (currentStep < cfg.questions.length + 3) {
-        const dataStep = currentStep - cfg.questions.length;
-        let html = '';
-
-        if (dataStep === 0) {
-          html = `
-            <div class="question-block">
-              <label class="question-label">${currentStep + 1}. Nombre completo</label>
-              <input type="text" id="clientNombre" placeholder="Ej: Juan Pérez" class="input-field w-full p-4 rounded-full text-base" value="${clientData.nombre}">
-            </div>`;
-        } else if (dataStep === 1) {
-          html = `
-            <div class="question-block">
-              <label class="question-label">${currentStep + 1}. Teléfono de contacto</label>
-              <input type="tel" id="clientTelefono" placeholder="Ej: 8112345678" class="input-field w-full p-4 rounded-full text-base" value="${clientData.telefono}">
-            </div>`;
-        } else if (dataStep === 2) {
-          html = `
-            <div class="question-block">
-              <label class="question-label">${currentStep + 1}. Dirección</label>
-              <input type="text" id="clientDireccion" placeholder="Ej: Calle, colonia, ciudad" class="input-field w-full p-4 rounded-full text-base" value="${clientData.direccion}">
-              <p class="text-xs text-cyan-400/70 mt-2">Opcional pero recomendado</p>
-            </div>`;
-        }
-
-        container.innerHTML = html;
-
-        setTimeout(() => {
-          if (dataStep === 0 && clientData.nombre) document.getElementById('clientNombre').value = clientData.nombre;
-          if (dataStep === 1 && clientData.telefono) document.getElementById('clientTelefono').value = clientData.telefono;
-          if (dataStep === 2 && clientData.direccion) document.getElementById('clientDireccion').value = clientData.direccion;
-        }, 50);
-
-      } else {
-        showSummary();
-      }
-
-      updateNavButtons();
-      document.getElementById('stepIndicator').innerText = `Paso ${currentStep + 1} / ${totalSteps}`;
-    }
-
-    function selectOption(qId, val, btn) {
-      document.querySelectorAll(`#q-${qId} .option-btn`).forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      answers[qId] = val;
-      updateNavButtons();
-    }
-
-    function nextStep() {
-      const cfg = serviceConfig[currentService];
-
-      if (currentStep < cfg.questions.length) {
-        const question = cfg.questions[currentStep];
-        if (!answers[question.id]) {
-          alert('Por favor selecciona una opción antes de continuar.');
-          return;
-        }
-      } else if (currentStep < cfg.questions.length + 3) {
-        const dataStep = currentStep - cfg.questions.length;
-
-        if (dataStep === 0) {
-          const nombre = document.getElementById('clientNombre')?.value.trim();
-          if (!nombre) {
-            alert('El nombre es obligatorio');
-            return;
-          }
-          clientData.nombre = nombre;
-        } else if (dataStep === 1) {
-          const telefono = document.getElementById('clientTelefono')?.value.trim();
-          clientData.telefono = telefono;
-        } else if (dataStep === 2) {
-          const direccion = document.getElementById('clientDireccion')?.value.trim();
-          clientData.direccion = direccion;
-        }
-      }
-
-      if (currentStep < totalSteps - 1) {
-        currentStep++;
-        renderStep();
-      } else {
-        showSummary();
-      }
-    }
-
-    function previousStep() {
-      if (currentStep > 0) {
-        if (currentStep >= serviceConfig[currentService].questions.length) {
-          const dataStep = currentStep - serviceConfig[currentService].questions.length;
-          if (dataStep === 0 && document.getElementById('clientNombre')) {
-            clientData.nombre = document.getElementById('clientNombre').value;
-          } else if (dataStep === 1 && document.getElementById('clientTelefono')) {
-            clientData.telefono = document.getElementById('clientTelefono').value;
-          } else if (dataStep === 2 && document.getElementById('clientDireccion')) {
-            clientData.direccion = document.getElementById('clientDireccion').value;
-          }
-        }
-
-        currentStep--;
-        renderStep();
-      }
-    }
-
-    function showSummary() {
-      const cfg = serviceConfig[currentService];
-
-      let summaryHtml = '<div class="question-block"><h3 class="text-xl text-white mb-4">📋 Resumen de tu solicitud</h3><div class="space-y-2 bg-black/30 p-4 rounded-2xl">';
-
-      summaryHtml += `<div class="border-b border-green-500/20 pb-2 mb-2">
-        <p class="text-green-400 font-bold">👤 DATOS DEL CLIENTE</p>
-        <p class="text-white">${clientData.nombre || 'No proporcionado'}</p>
-        ${clientData.telefono ? `<p class="text-sm text-gray-400">📞 ${clientData.telefono}</p>` : ''}
-        ${clientData.direccion ? `<p class="text-sm text-gray-400">📍 ${clientData.direccion}</p>` : ''}
-      </div>`;
-
-      summaryHtml += `<p class="text-green-400 font-bold mb-2">🔧 SERVICIO SOLICITADO</p>`;
-      cfg.questions.forEach(q => {
-        summaryHtml += `<div class="flex justify-between border-b border-white/10 py-2">
-          <span class="text-gray-400">${q.label}:</span>
-          <span class="text-white font-bold">${answers[q.id] || '—'}</span>
-        </div>`;
-      });
-
-      summaryHtml += '</div></div>';
-
-      document.getElementById('questionsContainer').innerHTML = summaryHtml;
-      document.querySelector('.modal-nav').style.display = 'none';
-
-      const whatsappBtn = document.getElementById('whatsappBtn');
-      whatsappBtn.style.display = 'flex';
-      whatsappBtn.disabled = false;
-      whatsappBtn.innerHTML = '<span>📱</span><span>enviar solicitud a WhatsApp</span>';
-    }
-
-    function updateNavButtons() {
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-
-      prevBtn.disabled = currentStep === 0;
-
-      const cfg = serviceConfig[currentService];
-
-      if (currentStep < cfg.questions.length) {
-        const question = cfg.questions[currentStep];
-        const hasAnswer = answers[question.id] !== undefined;
-        nextBtn.disabled = !hasAnswer;
-        nextBtn.innerHTML = 'Siguiente <i class="fas fa-arrow-right"></i>';
-      } else if (currentStep < cfg.questions.length + 3) {
-        nextBtn.disabled = false;
-        if (currentStep === totalSteps - 1) {
-          nextBtn.innerHTML = 'Ver resumen <i class="fas fa-check"></i>';
-        } else {
-          nextBtn.innerHTML = 'Siguiente <i class="fas fa-arrow-right"></i>';
-        }
-      }
-    }
-
-    async function sendToWhatsApp() {
-      const cfg = serviceConfig[currentService];
-      const phone = '5218123201690'; // NUEVO NÚMERO DE CONTACTO
-
-      const ahora = new Date();
-      const year = ahora.getFullYear().toString().slice(-2);
-      const month = (ahora.getMonth() + 1).toString().padStart(2, '0');
-      const day = ahora.getDate().toString().padStart(2, '0');
-      const random = Math.floor(Math.random() * 9000 + 1000);
-      const folio = `HZ-${year}${month}${day}-${random}`;
-
-      const datosParaCloud = {
-        servicio: cfg.name,
-        nombreCliente: clientData.nombre,
-        telefono: clientData.telefono,
-        direccion: clientData.direccion,
-        whatsappCliente: clientData.whatsapp || clientData.telefono,
-        respuestas: answers,
-        folio: folio
-      };
-
-      cfg.questions.forEach((q, index) => {
-        datosParaCloud[`pregunta${index+1}`] = q.label;
-        datosParaCloud[`respuesta${index+1}`] = answers[q.id] || '';
-      });
-
-      try {
-        await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(datosParaCloud)
-        });
-        console.log('✅ Datos guardados en la nube con folio:', folio);
-      } catch (error) {
-        console.error('Error al guardar en nube:', error);
-      }
-
-      let mensaje = `⚡❄️ *ELECTRICIDAD Y REFRIGERACIÓN HERNÁNDEZ* ⚡❄️\n\n`;
-      mensaje += `📋 *FOLIO:* ${folio}\n`;
-      mensaje += `👤 *CLIENTE:* ${clientData.nombre}\n`;
-      if (clientData.telefono) mensaje += `📞 *TELÉFONO:* ${clientData.telefono}\n`;
-      if (clientData.direccion) mensaje += `📍 *DIRECCIÓN:* ${clientData.direccion}\n`;
-      mensaje += `🔨 *SERVICIO:* ${cfg.name}\n\n`;
-      mensaje += `📊 *DETALLE:*\n`;
-
-      cfg.questions.forEach(q => {
-        mensaje += `• ${q.label}: *${answers[q.id] || '—'}*\n`;
-      });
-
-      mensaje += `\n⏱️ *FECHA:* ${ahora.toLocaleDateString('es-MX')}\n`;
-      mensaje += `🕐 *HORA:* ${ahora.toLocaleTimeString('es-MX')}\n\n`;
-      mensaje += `📌 *Nos comunicaremos contigo lo antes posible.*`;
-
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, '_blank');
-
-      setTimeout(closeModal, 1000);
-    }
-
-    function closeModal(e) {
-      if (e && e.target !== e.currentTarget) return;
-      document.getElementById('diagnosticModal').style.display = 'none';
-      document.body.style.overflow = 'auto';
-      const modalNav = document.querySelector('.modal-nav');
-      if (modalNav) modalNav.style.display = 'flex';
-      document.getElementById('whatsappBtn').style.display = 'none';
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+    question.options.forEach(opt => {
+      const isSelected = answers[question.id] === opt;
+      html += `<button class="option-btn ${isSelected ? 'selected' : ''}" onclick="selectOption('${question.id}', '${opt}', this)">${opt}</button>`;
     });
-  </script>
-</body>
-</html>
+
+    html += `</div></div>`;
+    container.innerHTML = html;
+
+  } else if (currentStep < cfg.questions.length + 3) {
+    const dataStep = currentStep - cfg.questions.length;
+    let html = '';
+
+    if (dataStep === 0) {
+      html = `
+        <div class="question-block">
+          <label class="question-label">${currentStep + 1}. Nombre completo</label>
+          <input type="text" id="clientNombre" placeholder="Ej: Juan Pérez" class="input-field w-full p-4 rounded-full text-base" value="${clientData.nombre}">
+        </div>`;
+    } else if (dataStep === 1) {
+      html = `
+        <div class="question-block">
+          <label class="question-label">${currentStep + 1}. Teléfono de contacto</label>
+          <input type="tel" id="clientTelefono" placeholder="Ej: 8112345678" class="input-field w-full p-4 rounded-full text-base" value="${clientData.telefono}">
+        </div>`;
+    } else if (dataStep === 2) {
+      html = `
+        <div class="question-block">
+          <label class="question-label">${currentStep + 1}. Dirección</label>
+          <input type="text" id="clientDireccion" placeholder="Ej: Calle, colonia, ciudad" class="input-field w-full p-4 rounded-full text-base" value="${clientData.direccion}">
+          <p class="text-xs text-cyan-400/70 mt-2">Opcional pero recomendado</p>
+        </div>`;
+    }
+
+    container.innerHTML = html;
+
+    setTimeout(() => {
+      if (dataStep === 0 && clientData.nombre) document.getElementById('clientNombre').value = clientData.nombre;
+      if (dataStep === 1 && clientData.telefono) document.getElementById('clientTelefono').value = clientData.telefono;
+      if (dataStep === 2 && clientData.direccion) document.getElementById('clientDireccion').value = clientData.direccion;
+    }, 50);
+
+  } else {
+    showSummary();
+  }
+
+  updateNavButtons();
+  document.getElementById('stepIndicator').innerText = `Paso ${currentStep + 1} / ${totalSteps}`;
+}
+
+function selectOption(qId, val, btn) {
+  document.querySelectorAll(`#q-${qId} .option-btn`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  answers[qId] = val;
+  updateNavButtons();
+}
+
+function nextStep() {
+  const cfg = serviceConfig[currentService];
+
+  if (currentStep < cfg.questions.length) {
+    const question = cfg.questions[currentStep];
+    if (!answers[question.id]) {
+      alert('Por favor selecciona una opción antes de continuar.');
+      return;
+    }
+  } else if (currentStep < cfg.questions.length + 3) {
+    const dataStep = currentStep - cfg.questions.length;
+
+    if (dataStep === 0) {
+      const nombre = document.getElementById('clientNombre')?.value.trim();
+      if (!nombre) {
+        alert('El nombre es obligatorio');
+        return;
+      }
+      clientData.nombre = nombre;
+    } else if (dataStep === 1) {
+      const telefono = document.getElementById('clientTelefono')?.value.trim();
+      clientData.telefono = telefono;
+    } else if (dataStep === 2) {
+      const direccion = document.getElementById('clientDireccion')?.value.trim();
+      clientData.direccion = direccion;
+    }
+  }
+
+  if (currentStep < totalSteps - 1) {
+    currentStep++;
+    renderStep();
+  } else {
+    showSummary();
+  }
+}
+
+function previousStep() {
+  if (currentStep > 0) {
+    if (currentStep >= serviceConfig[currentService].questions.length) {
+      const dataStep = currentStep - serviceConfig[currentService].questions.length;
+      if (dataStep === 0 && document.getElementById('clientNombre')) {
+        clientData.nombre = document.getElementById('clientNombre').value;
+      } else if (dataStep === 1 && document.getElementById('clientTelefono')) {
+        clientData.telefono = document.getElementById('clientTelefono').value;
+      } else if (dataStep === 2 && document.getElementById('clientDireccion')) {
+        clientData.direccion = document.getElementById('clientDireccion').value;
+      }
+    }
+
+    currentStep--;
+    renderStep();
+  }
+}
+
+function showSummary() {
+  const cfg = serviceConfig[currentService];
+
+  let summaryHtml = '<div class="question-block"><h3 class="text-xl text-white mb-4">📋 Resumen de tu solicitud</h3><div class="space-y-2 bg-black/30 p-4 rounded-2xl">';
+
+  summaryHtml += `<div class="border-b border-green-500/20 pb-2 mb-2">
+    <p class="text-green-400 font-bold">👤 DATOS DEL CLIENTE</p>
+    <p class="text-white">${clientData.nombre || 'No proporcionado'}</p>
+    ${clientData.telefono ? `<p class="text-sm text-gray-400">📞 ${clientData.telefono}</p>` : ''}
+    ${clientData.direccion ? `<p class="text-sm text-gray-400">📍 ${clientData.direccion}</p>` : ''}
+    <p class="text-sm text-gold-400 mt-1">📋 FOLIO: ${folioActual}</p>
+  </div>`;
+
+  summaryHtml += `<p class="text-green-400 font-bold mb-2">🔧 SERVICIO SOLICITADO</p>`;
+  cfg.questions.forEach(q => {
+    summaryHtml += `<div class="flex justify-between border-b border-white/10 py-2">
+      <span class="text-gray-400">${q.label}:</span>
+      <span class="text-white font-bold">${answers[q.id] || '—'}</span>
+    </div>`;
+  });
+
+  summaryHtml += '</div></div>';
+
+  document.getElementById('questionsContainer').innerHTML = summaryHtml;
+  document.querySelector('.modal-nav').style.display = 'none';
+
+  const whatsappBtn = document.getElementById('whatsappBtn');
+  whatsappBtn.style.display = 'flex';
+  whatsappBtn.disabled = false;
+  whatsappBtn.innerHTML = '<span>📱</span><span>enviar solicitud a WhatsApp</span>';
+}
+
+function updateNavButtons() {
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  prevBtn.disabled = currentStep === 0;
+
+  const cfg = serviceConfig[currentService];
+
+  if (currentStep < cfg.questions.length) {
+    const question = cfg.questions[currentStep];
+    const hasAnswer = answers[question.id] !== undefined;
+    nextBtn.disabled = !hasAnswer;
+    nextBtn.innerHTML = 'Siguiente <i class="fas fa-arrow-right"></i>';
+  } else if (currentStep < cfg.questions.length + 3) {
+    nextBtn.disabled = false;
+    if (currentStep === totalSteps - 1) {
+      nextBtn.innerHTML = 'Ver resumen <i class="fas fa-check"></i>';
+    } else {
+      nextBtn.innerHTML = 'Siguiente <i class="fas fa-arrow-right"></i>';
+    }
+  }
+}
+
+// ============================================
+// FUNCIÓN PRINCIPAL: ENVIAR A WHATSAPP
+// ============================================
+async function sendToWhatsApp() {
+  const cfg = serviceConfig[currentService];
+  const phone = '5218123201690';
+  
+  // 🎯 USAR EL MISMO FOLIO DE LA COTIZACIÓN (YA GENERADO EN OPENMODAL)
+  const folio = folioActual || localStorage.getItem('folio_actual') || generarFolio();
+  
+  console.log('📤 Enviando cotización con folio:', folio);
+
+  // Preparar datos para el backend
+  const datosParaCloud = {
+    servicio: cfg.name,
+    nombreCliente: clientData.nombre,
+    telefono: clientData.telefono,
+    direccion: clientData.direccion,
+    whatsappCliente: clientData.whatsapp || clientData.telefono,
+    respuestas: answers,
+    folio: folio // 🎯 ENVIAR EL FOLIO GENERADO
+  };
+
+  cfg.questions.forEach((q, index) => {
+    datosParaCloud[`pregunta${index+1}`] = q.label;
+    datosParaCloud[`respuesta${index+1}`] = answers[q.id] || '';
+  });
+
+  // Enviar al backend (CORREGIDO: quitamos 'no-cors' para poder leer respuesta)
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'cors', // 🎯 CAMBIADO DE 'no-cors' a 'cors'
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datosParaCloud)
+    });
+    
+    const result = await response.json();
+    console.log('✅ Respuesta del backend:', result);
+    
+    if (result.success) {
+      console.log('✅ Cotización guardada en Sheets con folio:', result.idCotizacion);
+      
+      // Verificar que coincida
+      if (result.idCotizacion === folio) {
+        console.log('🎯 PERFECTO: El folio coincide!');
+      } else {
+        console.warn('⚠️ El backend devolvió un folio diferente:', result.idCotizacion);
+      }
+    } else {
+      console.error('❌ Error del backend:', result.error);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error al enviar a backend:', error);
+    // Continuamos aunque falle el backend, para que al menos WhatsApp funcione
+  }
+
+  // Construir mensaje de WhatsApp (CON EL MISMO FOLIO)
+  let mensaje = `⚡❄️ *ELECTRICIDAD Y REFRIGERACIÓN HERNÁNDEZ* ⚡❄️\n\n`;
+  mensaje += `📋 *FOLIO:* ${folio}\n`;
+  mensaje += `👤 *CLIENTE:* ${clientData.nombre}\n`;
+  if (clientData.telefono) mensaje += `📞 *TELÉFONO:* ${clientData.telefono}\n`;
+  if (clientData.direccion) mensaje += `📍 *DIRECCIÓN:* ${clientData.direccion}\n`;
+  mensaje += `🔨 *SERVICIO:* ${cfg.name}\n\n`;
+  mensaje += `📊 *DETALLE:*\n`;
+
+  cfg.questions.forEach(q => {
+    mensaje += `• ${q.label}: *${answers[q.id] || '—'}*\n`;
+  });
+
+  mensaje += `\n⏱️ *FECHA:* ${new Date().toLocaleDateString('es-MX')}\n`;
+  mensaje += `🕐 *HORA:* ${new Date().toLocaleTimeString('es-MX')}\n\n`;
+  mensaje += `📌 *Nos comunicaremos contigo lo antes posible.*`;
+
+  // Abrir WhatsApp
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+
+  // Cerrar modal después de 1 segundo
+  setTimeout(closeModal, 1000);
+}
+
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('diagnosticModal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+  const modalNav = document.querySelector('.modal-nav');
+  if (modalNav) modalNav.style.display = 'flex';
+  document.getElementById('whatsappBtn').style.display = 'none';
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
