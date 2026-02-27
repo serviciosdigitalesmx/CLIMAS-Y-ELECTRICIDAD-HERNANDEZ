@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,500;14..32,700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* [MANTIENES EL MISMO CSS DE LA VERSIÓN ANTERIOR] */
     * {
       margin: 0;
       padding: 0;
@@ -861,11 +862,11 @@
     <span>→</span>
   </div>
 
-      <script>
+  <script>
     // ============================================
     // CONFIGURACIÓN
     // ============================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwdtnWY9C9D5cAAGl6RV3_cU_Xy2DFHxaFxAzZlZXbWhItq0bcl7bXIZatCpEMDM5t3/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdvdyA4Wly7PBhJmG4HQaWJ8Fd_wXC7yzUBwj9-w8g16sXkFSRPm7-FhGVq-ld_UMc/exec';
 
     // ============================================
     // VARIABLES GLOBALES
@@ -874,7 +875,9 @@
     let answers = {};
     let currentStep = 0;
     let totalSteps = 0;
-    let folioActual = null;
+    
+    // ❌ ELIMINADO: NO generamos folio en el frontend
+    // let folioActual = null;
 
     let clientData = {
       nombre: '',
@@ -946,16 +949,9 @@
     };
 
     // ============================================
-    // FUNCIÓN PARA GENERAR FOLIO
+    // ❌ ELIMINADO: NO generamos folio en el frontend
     // ============================================
-    function generarFolio() {
-      const ahora = new Date();
-      const year = ahora.getFullYear().toString().slice(-2);
-      const month = (ahora.getMonth() + 1).toString().padStart(2, '0');
-      const day = ahora.getDate().toString().padStart(2, '0');
-      const random = Math.floor(Math.random() * 9000 + 1000);
-      return `HZ-${year}${month}${day}-${random}`;
-    }
+    // function generarFolio() { ... }  ← ELIMINADO
 
     // ============================================
     // FUNCIONES DEL MODAL
@@ -971,9 +967,9 @@
       clientData = { nombre: '', telefono: '', direccion: '', whatsapp: '' };
       currentStep = 0;
 
-      folioActual = generarFolio();
-      console.log('📌 Folio asignado a esta cotización:', folioActual);
-      localStorage.setItem('folio_actual', folioActual);
+      // ❌ ELIMINADO: No generamos folio al abrir modal
+      // folioActual = generarFolio();
+      // localStorage.setItem('folio_actual', folioActual);
 
       const cfg = serviceConfig[key];
       totalSteps = cfg.questions.length + 3;
@@ -1124,7 +1120,7 @@
         <p class="text-white">${clientData.nombre || 'No proporcionado'}</p>
         ${clientData.telefono ? `<p class="text-sm text-gray-400">📞 ${clientData.telefono}</p>` : ''}
         ${clientData.direccion ? `<p class="text-sm text-gray-400">📍 ${clientData.direccion}</p>` : ''}
-        <p class="text-sm text-gold-400 mt-1">📋 FOLIO: ${folioActual}</p>
+        <!-- ❌ ELIMINADO: No mostramos folio generado por frontend -->
       </div>`;
 
       summaryHtml += `<p class="text-green-400 font-bold mb-2">🔧 SERVICIO SOLICITADO</p>`;
@@ -1176,18 +1172,19 @@
       const cfg = serviceConfig[currentService];
       const phone = '5218123201690';
 
-      const folio = folioActual || localStorage.getItem('folio_actual') || generarFolio();
+      // ❌ ELIMINADO: NO generamos folio en el frontend
+      // const folio = folioActual || localStorage.getItem('folio_actual') || generarFolio();
 
-      console.log('📤 Enviando cotización con folio:', folio);
-
+      // ✅ CORRECTO: Enviamos los datos SIN folio, el backend lo generará
       const datosParaCloud = {
+        // idCotizacion: NO LO ENVIAMOS, el backend lo genera
         servicio: cfg.name,
         nombreCliente: clientData.nombre,
         telefono: clientData.telefono,
         direccion: clientData.direccion,
         whatsappCliente: clientData.whatsapp || clientData.telefono,
-        respuestas: answers,
-        folio: folio
+        respuestas: answers
+        // ❌ ELIMINADO: No enviamos campo folio
       };
 
       cfg.questions.forEach((q, index) => {
@@ -1195,7 +1192,15 @@
         datosParaCloud[`respuesta${index+1}`] = answers[q.id] || '';
       });
 
+      let folioBackend = null;
+
       try {
+        // Mostrar estado de carga
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        whatsappBtn.disabled = true;
+        whatsappBtn.innerHTML = '<span>⏳</span><span>enviando...</span>';
+
+        // Enviar al backend y ESPERAR respuesta
         const response = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
           mode: 'cors',
@@ -1206,24 +1211,28 @@
         const result = await response.json();
         console.log('✅ Respuesta del backend:', result);
 
-        if (result.success) {
-          console.log('✅ Cotización guardada en Sheets con folio:', result.idCotizacion);
+        if (result.success && result.idCotizacion) {
+          // ✅ ESTE es el folio real generado por el backend
+          folioBackend = result.idCotizacion;
+          console.log('🎯 Folio generado por backend:', folioBackend);
 
-          if (result.idCotizacion === folio) {
-            console.log('🎯 PERFECTO: El folio coincide!');
-          } else {
-            console.warn('⚠️ El backend devolvió un folio diferente:', result.idCotizacion);
-          }
+          // Guardar en localStorage para referencia (opcional)
+          localStorage.setItem('ultimo_folio', folioBackend);
         } else {
           console.error('❌ Error del backend:', result.error);
+          // Si hay error, generamos un folio temporal para el mensaje
+          folioBackend = 'HZ-' + new Date().getTime().toString().slice(-8);
         }
 
       } catch (error) {
         console.error('❌ Error al enviar a backend:', error);
+        // Si hay error de conexión, generamos un folio temporal
+        folioBackend = 'HZ-' + new Date().getTime().toString().slice(-8);
       }
 
+      // Construir mensaje con el folio del backend (o temporal)
       let mensaje = `⚡❄️ *ELECTRICIDAD Y REFRIGERACIÓN HERNÁNDEZ* ⚡❄️\n\n`;
-      mensaje += `📋 *FOLIO:* ${folio}\n`;
+      mensaje += `📋 *FOLIO:* ${folioBackend}\n`;  // ← Usamos el folio del backend
       mensaje += `👤 *CLIENTE:* ${clientData.nombre}\n`;
       if (clientData.telefono) mensaje += `📞 *TELÉFONO:* ${clientData.telefono}\n`;
       if (clientData.direccion) mensaje += `📍 *DIRECCIÓN:* ${clientData.direccion}\n`;
@@ -1236,10 +1245,14 @@
 
       mensaje += `\n⏱️ *FECHA:* ${new Date().toLocaleDateString('es-MX')}\n`;
       mensaje += `🕐 *HORA:* ${new Date().toLocaleTimeString('es-MX')}\n\n`;
-      mensaje += `📌 *Nos comunicaremos contigo lo antes posible.*`;
+      mensaje += `📌 *Nos comunicaremos contigo lo antes posible.*\n`;
+      mensaje += `_Guarda tu folio para dar seguimiento._`;
 
       const url = `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`;
       window.open(url, '_blank');
+
+      // Mostrar mensaje de éxito con el folio
+      alert(`✅ Solicitud enviada con folio: ${folioBackend}\n\nGuarda este número para dar seguimiento.`);
 
       setTimeout(closeModal, 1000);
     }
@@ -1257,3 +1270,5 @@
       if (e.key === 'Escape') closeModal();
     });
   </script>
+</body>
+</html>
