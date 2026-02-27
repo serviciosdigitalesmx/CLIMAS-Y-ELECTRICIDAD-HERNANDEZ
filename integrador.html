@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OR SERVICIOS · Técnico PRO</title>
+    <title>Hernández · Panel Técnico</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,500;14..32,700&family=Space+Grotesk:wght@400;500;600&display=swap');
-        
+
         :root {
-            --black-hole: #121417;
-            --steel-abs: #1e1f24;
-            --steel-dark: #2a2c33;
-            --steel-mid: #3a3d47;
-            --or-blue: #0077ff;
-            --or-yellow: #ffbb00;
-            --or-yellow-glow: 0 0 20px rgba(255, 187, 0, 0.65);
-            --or-blue-glow: 0 0 20px rgba(0, 119, 255, 0.65);
+            --black-hole: #030405;
+            --steel-abs: #12141c;
+            --steel-dark: #1c1f2c;
+            --steel-mid: #2b3040;
+            --blue-deep: #0D1C44;
+            --blue-light: #00E5FF;
+            --gold-accent: #FFD700;
+            --whatsapp-green: #25D366;
+            --pure-white: #FFFFFF;
+            --light-gray: #F0F0F0;
             --glass-edge: rgba(255, 255, 255, 0.04);
             --text-primary: #f0f3f8;
             --text-secondary: #a6b0c0;
-            --whatsapp-solid: #25d366;
             --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
             --font-body: 'Inter', 'Segoe UI', sans-serif;
         }
@@ -43,24 +44,19 @@
         }
 
         .header {
-            background: #121417;
-            border-bottom: 1px solid var(--or-blue);
+            background: var(--blue-deep);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
             box-shadow: 0 10px 30px -15px #000, inset 0 1px 0 rgba(255,255,255,0.02);
         }
 
-        .logo-text {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #fff, var(--or-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 2px;
+        .logo {
+            height: 50px;
+            width: auto;
+            filter: drop-shadow(0 0 12px var(--blue-light)) brightness(1.2);
+            transition: filter 0.2s;
         }
-        .logo-text span {
-            background: linear-gradient(135deg, var(--or-yellow), #fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .logo:hover {
+            filter: drop-shadow(0 0 22px var(--gold-accent)) drop-shadow(0 0 15px var(--blue-light)) brightness(1.4);
         }
 
         .global-scanner {
@@ -69,7 +65,7 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: linear-gradient(90deg, transparent, var(--or-yellow), transparent);
+            background: linear-gradient(90deg, transparent, var(--blue-light), transparent);
             filter: blur(6px);
             opacity: 0.4;
             z-index: 9999;
@@ -87,30 +83,30 @@
         }
 
         .glass-panel {
-            background: rgba(18, 20, 23, 0.85);
+            background: rgba(8, 12, 22, 0.85);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.05);
-            border-left: 3px solid var(--or-blue);
+            border-left: 3px solid rgba(0,229,255,0.3);
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
         }
 
         .glass-panel:hover {
-            border-left: 4px solid var(--or-blue);
-            box-shadow: 0 8px 32px rgba(0,119,255,0.2);
+            border-left: 4px solid var(--blue-light);
+            box-shadow: 0 8px 32px rgba(0,229,255,0.2);
         }
 
         .input-field {
-            background: #1a1c22;
-            border: 1px solid #2a2c33;
+            background: #1a1e2c;
+            border: 1px solid #2f3a4a;
             transition: all 0.2s;
-            color: white;
+            color: var(--pure-white);
             border-radius: 40px;
             padding: 12px 16px;
         }
         .input-field:focus {
-            border-color: var(--or-yellow);
+            border-color: var(--blue-light);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(255,187,0,0.2);
+            box-shadow: 0 0 0 3px rgba(0,229,255,0.2);
         }
 
         .btn-tactile {
@@ -126,16 +122,16 @@
         .service-card {
             transition: all 0.2s;
             border: 1px solid transparent;
-            background: rgba(26, 28, 35, 0.7);
+            background: rgba(26, 30, 44, 0.7);
             border-radius: 40px;
             padding: 16px;
             text-align: center;
             cursor: pointer;
         }
         .service-card.active {
-            border-color: var(--or-yellow);
-            background: rgba(255, 187, 0, 0.1);
-            box-shadow: 0 0 20px rgba(255, 187, 0, 0.3);
+            border-color: var(--gold-accent);
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
         }
         .service-card.disabled {
             opacity: 0.5;
@@ -144,9 +140,9 @@
         }
 
         .badge-folio {
-            background: rgba(0, 119, 255, 0.1);
-            border: 1px solid var(--or-blue);
-            color: var(--or-blue);
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--gold-accent);
+            color: var(--gold-accent);
             font-family: monospace;
             padding: 4px 8px;
             border-radius: 20px;
@@ -154,8 +150,8 @@
         }
 
         .folio-search {
-            background: #1a1c22;
-            border: 1px solid #2a2c33;
+            background: #1a1e2c;
+            border: 1px solid #2f3a4a;
             border-radius: 60px;
             padding: 4px;
             display: flex;
@@ -164,7 +160,7 @@
         .folio-search input {
             background: transparent;
             border: none;
-            color: white;
+            color: var(--pure-white);
             padding: 12px 20px;
             width: 100%;
             font-size: 0.95rem;
@@ -173,8 +169,8 @@
             outline: none;
         }
         .folio-search button {
-            background: var(--or-blue);
-            color: #fff;
+            background: var(--gold-accent);
+            color: #000;
             font-weight: bold;
             padding: 10px 24px;
             border-radius: 40px;
@@ -182,13 +178,12 @@
             transition: all 0.3s;
         }
         .folio-search button:hover {
-            background: var(--or-yellow);
-            color: #121417;
+            background: var(--pure-white);
         }
 
         .total-display {
-            background: linear-gradient(135deg, #1a1c22 0%, #121417 100%);
-            border-left: 4px solid var(--or-yellow);
+            background: linear-gradient(135deg, #1a1e2c 0%, #0c0f18 100%);
+            border-left: 4px solid var(--gold-accent);
             border-radius: 32px;
             padding: 20px;
         }
@@ -197,15 +192,12 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--or-yellow);
+            color: var(--gold-accent);
             font-weight: 600;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-        .section-title i {
-            color: var(--or-blue);
         }
 
         .modal {
@@ -224,8 +216,8 @@
         }
 
         .modal-content {
-            background: rgba(18, 20, 23, 0.95);
-            border: 1px solid var(--or-yellow);
+            background: rgba(8, 12, 22, 0.95);
+            border: 1px solid var(--gold-accent);
             border-radius: 48px;
             padding: 24px;
             max-width: 600px;
@@ -240,6 +232,13 @@
             scrollbar-width: none;
         }
 
+        .item-row {
+            background: rgba(26, 30, 44, 0.7);
+            border-radius: 32px;
+            border: 1px solid #2f3a4a;
+            padding: 8px;
+        }
+
         .diagnostico-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -251,15 +250,15 @@
             }
         }
         .diagnostico-item {
-            background: #1a1c22;
-            border: 1px solid #2a2c33;
+            background: #1a1e2c;
+            border: 1px solid #2f3a4a;
             border-radius: 24px;
             padding: 16px;
             text-align: center;
         }
         .diagnostico-label {
             font-size: 0.7rem;
-            color: var(--or-blue);
+            color: var(--blue-light);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -267,19 +266,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             margin-top: 4px;
-            word-break: break-word;
-        }
-
-        table input {
-            background: #1a1c22;
-            border: 1px solid #2a2c33;
-            border-radius: 40px;
-            padding: 6px 12px;
-            color: white;
-        }
-        table input:focus {
-            border-color: var(--or-yellow);
-            outline: none;
+            color: var(--pure-white);
         }
     </style>
 </head>
@@ -289,15 +276,19 @@
     <header class="header fixed top-0 w-full z-50 py-3 px-4">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
+                <img src="https://github.com/serviciosdigitalesmx/CLIMAS-Y-ELECTRICIDAD-HERNANDEZ/blob/main/logo.png?raw=true"
+                     alt="Electricidad y Refrigeración Hernández"
+                     class="logo"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div>
-                    <div class="logo-text">OR <span>SERVICIOS</span></div>
-                    <p class="text-[10px] text-gray-500 font-mono">ING. JAVIER OVALLE · TÉCNICO</p>
+                    <h1 class="font-bold text-lg tracking-tight text-white">HERNÁNDEZ</h1>
+                    <p class="text-[10px] text-blue-300 font-mono">TÉCNICO · ELECTRICIDAD Y REFRIGERACIÓN</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <div id="folioIndicator" class="badge-folio hidden"></div>
                 <div class="text-right">
-                    <div id="clock" class="text-sm font-mono text-[#ffbb00] font-bold tabular-nums">00:00</div>
+                    <div id="clock" class="text-sm font-mono text-blue-300 font-bold tabular-nums">00:00</div>
                     <div id="date" class="text-[10px] text-gray-500">--/--/--</div>
                 </div>
             </div>
@@ -308,10 +299,10 @@
         <!-- Buscador de folio -->
         <div class="glass-panel rounded-3xl p-6">
             <div class="section-title">
-                <i class="fas fa-search"></i> BUSCAR COTIZACIÓN
+                <i class="fas fa-search"></i> BUSCAR SOLICITUD
             </div>
             <div class="folio-search">
-                <input type="text" id="folioSearchInput" placeholder="Ingresa el folio (ej: OR-260224-9557)">
+                <input type="text" id="folioSearchInput" placeholder="Ingresa el folio (ej: HZ-260224-9557)">
                 <button onclick="loadFolioFromInput()">
                     <i class="fas fa-arrow-right mr-2"></i> Cargar
                 </button>
@@ -319,13 +310,13 @@
             <div id="folioSearchResult" class="text-sm text-gray-400 mt-2 text-center"></div>
         </div>
 
-        <!-- Banner de cotización cargada -->
-        <div id="remoteQuoteBanner" class="hidden glass-panel rounded-3xl p-4 border-l-4 border-l-[#ffbb00]">
+        <!-- Banner de solicitud cargada -->
+        <div id="remoteQuoteBanner" class="hidden glass-panel rounded-3xl p-4 border-l-4 border-l-gold-400">
             <div class="flex items-start gap-4">
-                <i class="fas fa-cloud-download-alt text-2xl text-[#ffbb00]"></i>
+                <i class="fas fa-cloud-download-alt text-2xl text-gold-400"></i>
                 <div>
-                    <h3 class="font-bold text-white">Cotización cargada exitosamente</h3>
-                    <p class="text-sm text-[#ffbb00]/80" id="bannerDetails">Folio: Cargando...</p>
+                    <h3 class="font-bold text-white">Solicitud cargada exitosamente</h3>
+                    <p class="text-sm text-gold-400/80" id="bannerDetails">Folio: Cargando...</p>
                 </div>
             </div>
         </div>
@@ -333,32 +324,32 @@
         <!-- Familia de servicio -->
         <div class="glass-panel rounded-3xl p-6">
             <div class="section-title">
-                <i class="fas fa-tools"></i> FAMILIA DE SERVICIO
+                <i class="fas fa-tools"></i> TIPO DE SERVICIO
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <button onclick="selectService('electricidad')" id="svc-electricidad" class="service-card">
-                    <i class="fas fa-bolt text-2xl mb-2" style="color: var(--or-blue);"></i>
-                    <span class="text-sm font-semibold block">Electricidad 110/220</span>
+                    <i class="fas fa-bolt text-2xl mb-2 text-blue-300"></i>
+                    <span class="text-sm font-semibold block">Electricidad</span>
                 </button>
                 <button onclick="selectService('minisplit')" id="svc-minisplit" class="service-card">
-                    <i class="fas fa-snowflake text-2xl mb-2" style="color: var(--or-blue);"></i>
-                    <span class="text-sm font-semibold block">Minisplit</span>
-                </button>
-                <button onclick="selectService('soldadura')" id="svc-soldadura" class="service-card">
-                    <i class="fas fa-hammer text-2xl mb-2" style="color: var(--or-blue);"></i>
-                    <span class="text-sm font-semibold block">Soldadura</span>
+                    <i class="fas fa-snowflake text-2xl mb-2 text-blue-300"></i>
+                    <span class="text-sm font-semibold block">Climas</span>
                 </button>
                 <button onclick="selectService('plomeria')" id="svc-plomeria" class="service-card">
-                    <i class="fas fa-faucet-drip text-2xl mb-2" style="color: var(--or-blue);"></i>
+                    <i class="fas fa-faucet-drip text-2xl mb-2 text-blue-300"></i>
                     <span class="text-sm font-semibold block">Plomería</span>
                 </button>
-                <button onclick="selectService('ventiladores')" id="svc-ventiladores" class="service-card">
-                    <i class="fas fa-fan text-2xl mb-2" style="color: var(--or-blue);"></i>
-                    <span class="text-sm font-semibold block">Ventiladores</span>
+                <button onclick="selectService('paneles')" id="svc-paneles" class="service-card">
+                    <i class="fas fa-sun text-2xl mb-2 text-blue-300"></i>
+                    <span class="text-sm font-semibold block">Paneles</span>
                 </button>
                 <button onclick="selectService('general')" id="svc-general" class="service-card">
-                    <i class="fas fa-toolbox text-2xl mb-2" style="color: var(--or-blue);"></i>
+                    <i class="fas fa-toolbox text-2xl mb-2 text-blue-300"></i>
                     <span class="text-sm font-semibold block">General</span>
+                </button>
+                <button onclick="selectService('otro')" id="svc-otro" class="service-card">
+                    <i class="fas fa-question-circle text-2xl mb-2 text-blue-300"></i>
+                    <span class="text-sm font-semibold block">Otro</span>
                 </button>
             </div>
         </div>
@@ -404,9 +395,7 @@
                     <div class="diagnostico-value" id="diagnosticoVal4">-</div>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 mt-4" id="diagnosticoExtra">
-                <!-- Para preguntas 5 y 6 si existen -->
-            </div>
+            <div class="grid grid-cols-2 gap-4 mt-4" id="diagnosticoExtra"></div>
         </div>
 
         <!-- Materiales y conceptos -->
@@ -416,10 +405,10 @@
                     <i class="fas fa-layer-group"></i> CONCEPTOS
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="loadMaterialsFromCloud()" id="suggestMaterialsBtn" class="btn-tactile text-sm bg-[#0077ff]/10 hover:bg-[#0077ff]/20 text-[#0077ff] px-4 py-2 rounded-full border border-[#0077ff]/30">
+                    <button onclick="loadMaterialsFromCloud()" id="suggestMaterialsBtn" class="btn-tactile text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 px-4 py-2 rounded-full border border-blue-500/30">
                         <i class="fas fa-cloud-download-alt mr-1"></i> Sugerir
                     </button>
-                    <button onclick="addItem()" class="btn-tactile text-sm bg-[#ffbb00] text-black hover:bg-[#ffbb00]/80 px-4 py-2 rounded-full font-bold">
+                    <button onclick="addItem()" class="btn-tactile text-sm bg-gold-500 text-black hover:bg-white px-4 py-2 rounded-full font-bold">
                         <i class="fas fa-plus-circle mr-1"></i> Agregar
                     </button>
                 </div>
@@ -430,18 +419,18 @@
                 <input type="text" id="materialSearch" placeholder="Buscar material..." class="input-field w-full pl-10" onkeyup="filterMaterials()">
                 <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
             </div>
-            
-            <div id="searchResults" class="hidden absolute z-10 bg-[#1a1c22] border border-[#ffbb00]/30 rounded-2xl max-h-48 overflow-y-auto w-96 shadow-2xl"></div>
-            
+
+            <div id="searchResults" class="hidden absolute z-10 bg-[#1a1e2c] border border-gold-500/30 rounded-2xl max-h-48 overflow-y-auto w-96 shadow-2xl"></div>
+
             <!-- Tabla de conceptos -->
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="border-b border-gray-700">
-                            <th class="text-left py-3 px-2 text-xs font-semibold" style="color: var(--or-yellow);">Descripción</th>
-                            <th class="text-center py-3 px-2 text-xs font-semibold" style="color: var(--or-yellow);">Cantidad</th>
-                            <th class="text-right py-3 px-2 text-xs font-semibold" style="color: var(--or-yellow);">Precio Unit.</th>
-                            <th class="text-right py-3 px-2 text-xs font-semibold" style="color: var(--or-yellow);">Importe</th>
+                            <th class="text-left py-3 px-2 text-xs font-semibold text-gold-400 uppercase">Descripción</th>
+                            <th class="text-center py-3 px-2 text-xs font-semibold text-gold-400 uppercase w-24">Cantidad</th>
+                            <th class="text-right py-3 px-2 text-xs font-semibold text-gold-400 uppercase w-32">Precio Unit.</th>
+                            <th class="text-right py-3 px-2 text-xs font-semibold text-gold-400 uppercase w-32">Importe</th>
                             <th class="text-center py-3 px-2 w-10"></th>
                         </tr>
                     </thead>
@@ -477,22 +466,22 @@
                 <span class="text-gray-400">MANO DE OBRA</span>
                 <span id="laborDisplay" class="font-mono text-white">$0</span>
             </div>
-            <div class="border-t border-[#ffbb00]/20 my-3"></div>
+            <div class="border-t border-gold-500/20 my-3"></div>
             <div class="flex justify-between items-center">
-                <span class="text-[#ffbb00] font-black text-sm">TOTAL</span>
+                <span class="text-gold-400 font-black text-sm">TOTAL</span>
                 <span id="totalAmount" class="text-3xl font-black font-mono text-white">$0</span>
             </div>
         </div>
 
         <!-- Botones de acción -->
         <div class="flex flex-col md:flex-row gap-3">
-            <button onclick="generatePDF()" class="btn-tactile flex-1 bg-gradient-to-r from-[#0077ff] to-[#0055b3] text-white font-bold py-4 rounded-2xl text-lg shadow-lg shadow-[#0077ff]/50">
+            <button onclick="generatePDF()" class="btn-tactile flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 rounded-2xl text-lg shadow-lg shadow-blue-900/50">
                 <i class="fas fa-file-pdf mr-2"></i> GENERAR PDF
             </button>
             <button onclick="shareWhatsApp()" class="btn-tactile flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 rounded-2xl text-lg">
                 <i class="fab fa-whatsapp mr-2"></i> WhatsApp
             </button>
-            <button onclick="updateRemoteStatus()" class="btn-tactile flex-1 bg-[#0077ff]/10 hover:bg-[#0077ff]/20 text-[#0077ff] font-bold py-4 rounded-2xl text-lg border border-[#0077ff]/30">
+            <button onclick="updateRemoteStatus()" class="btn-tactile flex-1 bg-gold-500/10 hover:bg-gold-500/20 text-gold-400 font-bold py-4 rounded-2xl text-lg border border-gold-500/30">
                 <i class="fas fa-cloud-upload-alt mr-2"></i> Actualizar
             </button>
         </div>
@@ -504,14 +493,14 @@
             <div class="h-[70vh] bg-gray-100" id="pdfContent">
                 <div class="text-center text-gray-400 mt-20">
                     <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
-                    <p>Generando PDF Premium...</p>
+                    <p>Generando PDF...</p>
                 </div>
             </div>
-            <div class="p-4 flex gap-2 bg-[#1a1c22]">
+            <div class="p-4 flex gap-2 bg-[#0c0f18]">
                 <button onclick="closePDF()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-xl text-sm">
                     <i class="fas fa-times mr-1"></i>Cerrar
                 </button>
-                <button onclick="downloadPDF()" class="flex-1 bg-[#0077ff] text-white py-2 rounded-xl text-sm font-bold">
+                <button onclick="downloadPDF()" class="flex-1 bg-gold-500 text-black py-2 rounded-xl text-sm font-bold">
                     <i class="fas fa-download mr-1"></i>Descargar
                 </button>
                 <button onclick="sharePDF()" class="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white py-2 rounded-xl text-sm font-bold">
@@ -522,69 +511,46 @@
     </div>
 
     <!-- Toast -->
-    <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-[#1a1c22] border border-[#ffbb00] text-white px-5 py-3 rounded-2xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center space-x-3 backdrop-blur-lg">
-        <i class="fas fa-circle-check text-[#ffbb00] text-lg"></i>
+    <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-[#1a1e2c] border border-gold-400 text-white px-5 py-3 rounded-2xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center space-x-3 backdrop-blur-lg">
+        <i class="fas fa-circle-check text-gold-400 text-lg"></i>
         <span id="toastMsg" class="text-sm font-semibold">Listo</span>
     </div>
 
     <script>
+        // ============================================
+        // CONFIGURACIÓN
+        // ============================================
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7lZROJ1eAdkchovUEVOMlHjme5Xo7y-HpH-NIFBZyW4EDfInXesrrBdqftMSQDQQ/exec';
-        const API_TOKEN = 'OR_SERVICIOS_TOKEN';
-        
-        const serviceFamily = {
-            'electricidad': 'Electricidad',
-            'minisplit': 'Climatización',
-            'soldadura': 'Herrería',
-            'plomeria': 'Plomería',
-            'ventiladores': 'General',
-            'general': 'General'
+        const API_TOKEN = 'HERNANDEZ2024_SECRET_TOKEN';
+
+        // ============================================
+        // MAPEO DE PREGUNTAS POR SERVICIO
+        // ============================================
+        const serviceQuestions = {
+            electricidad: ["tipo de trabajo", "tipo de inmueble", "urgencia"],
+            minisplit: ["tipo de servicio", "ubicación del equipo", "urgencia", "cantidad de equipos"],
+            plomeria: ["problema", "zona afectada", "urgencia"],
+            paneles: ["servicio", "tipo de inmueble", "sistema actual", "urgencia"],
+            general: ["tipo de servicio", "descripción breve", "urgencia"],
+            otro: ["describe lo que necesitas", "tipo de servicio", "urgencia"]
         };
 
-        // Mapeo de preguntas por servicio para mostrar etiquetas correctas
-        const serviceQuestions = {
-            electricidad: [
-                "tipo de trabajo",
-                "tipo de inmueble",
-                "urgencia",
-                "cantidad de puntos"
-            ],
-            minisplit: [
-                "tipo de servicio",
-                "capacidad del equipo",
-                "tipo de gas",
-                "urgencia",
-                "cantidad de equipos"
-            ],
-            soldadura: [
-                "trabajo requerido",
-                "material",
-                "medidas aproximadas",
-                "urgencia"
-            ],
-            plomeria: [
-                "problema",
-                "zona afectada",
-                "urgencia"
-            ],
-            ventiladores: [
-                "servicio",
-                "tipo de ventilador",
-                "urgencia"
-            ],
-            general: [
-                "tipo de servicio",
-                "área",
-                "urgencia"
-            ]
+        const serviceFamily = {
+            'electricidad': 'Electricidad',
+            'minisplit': 'Climas',
+            'plomeria': 'Plomería',
+            'paneles': 'Paneles Solares',
+            'general': 'General',
+            'otro': 'Otro'
         };
 
         const serviceKeywords = {
-            'electricidad': ['electric', 'luz', 'corto', 'tablero', 'acometida', 'cable', 'pastilla'],
-            'minisplit': ['clima', 'minisplit', 'aire', 'refrigeracion', 'gas', 'frio', 'calor'],
-            'soldadura': ['solda', 'herreria', 'porton', 'rej', 'estructura', 'metal'],
-            'plomeria': ['plomer', 'agua', 'drenaj', 'tuber', 'fuga', 'bomba'],
-            'ventiladores': ['ventilador', 'extractor', 'balanceo'],
-            'general': ['general', 'mantenimiento', 'preventivo', 'correctivo']
+            'electricidad': ['electri', 'luz', 'corto', 'circuito', 'tablero', 'cable', 'instalacion'],
+            'minisplit': ['clima', 'minisplit', 'aire', 'refrigeracion', 'fri', 'calor', 'hvac'],
+            'plomeria': ['plomer', 'agua', 'drenaj', 'tuber', 'fuga', 'caño', 'wc', 'baño'],
+            'paneles': ['panel', 'solar', 'sol', 'fotovoltaico', 'inversor', 'energia solar'],
+            'general': ['general', 'mantenimiento', 'reparacion', 'instalacion'],
+            'otro': ['otro', 'varios', 'especial', 'personalizado']
         };
 
         let currentService = '';
@@ -607,7 +573,7 @@
         function detectServiceFromText(text) {
             if (!text) return 'general';
             const lowerText = text.toLowerCase();
-            
+
             for (const [service, keywords] of Object.entries(serviceKeywords)) {
                 for (const keyword of keywords) {
                     if (lowerText.includes(keyword)) {
@@ -621,7 +587,7 @@
         function updateServiceLock() {
             const serviceButtons = document.querySelectorAll('.service-card');
             const suggestBtn = document.getElementById('suggestMaterialsBtn');
-            
+
             if (currentFolio && folioService) {
                 serviceButtons.forEach(btn => btn.classList.add('disabled'));
                 if (suggestBtn && currentService !== folioService) {
@@ -646,13 +612,13 @@
                 showToast('Ingresa un folio válido', 'error');
                 return;
             }
-            
+
             document.getElementById('folioSearchResult').innerHTML = 'Buscando...';
-            
+
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?folio=${encodeURIComponent(folio)}`);
                 const data = await response.json();
-                
+
                 if (data.success && data.cotizacion) {
                     const url = new URL(window.location);
                     url.searchParams.set('folio', folio);
@@ -672,67 +638,59 @@
         async function loadFromFolio() {
             const params = new URLSearchParams(window.location.search);
             const folio = params.get('folio');
-            
+
             if (folio) {
                 currentFolio = folio;
                 document.getElementById('folioIndicator').innerText = folio;
                 document.getElementById('folioIndicator').classList.remove('hidden');
                 document.getElementById('folioSearchInput').value = folio;
-                
-                showToast('Cargando cotización...');
-                
+
+                showToast('Cargando solicitud...');
+
                 try {
                     const response = await fetch(`${APPS_SCRIPT_URL}?folio=${encodeURIComponent(folio)}`);
                     const data = await response.json();
-                    
+
                     if (data.success && data.cotizacion) {
                         cotizacionData = data.cotizacion;
-                        
+
                         document.getElementById('clientName').value = cotizacionData.Nombre_Cliente || '';
                         document.getElementById('clientPhone').value = cotizacionData.Telefono || '';
                         document.getElementById('clientAddress').value = cotizacionData.Direccion || '';
-                        
+
                         if (cotizacionData.Servicio) {
                             folioService = detectServiceFromText(cotizacionData.Servicio);
                             selectService(folioService);
                             currentService = folioService;
-                            
-                            // Cargar preguntas del servicio detectado
                             currentServiceQuestions = serviceQuestions[folioService] || [];
-                            
+
                             setTimeout(() => loadMaterialsFromCloud(), 500);
                         }
-                        
-                        // Cargar diagnóstico con etiquetas correctas
+
+                        // 🟢 Cargar diagnóstico con etiquetas reales
                         const preguntas = [];
                         const respuestas = [];
                         
                         // Extraer hasta 6 preguntas y respuestas
                         for (let i = 1; i <= 6; i++) {
-                            if (cotizacionData[`Pregunta${i}`]) {
-                                preguntas.push(cotizacionData[`Pregunta${i}`]);
-                            } else {
-                                preguntas.push('');
-                            }
+                            preguntas.push(cotizacionData[`Pregunta${i}`] || '');
                             
                             let respuesta = cotizacionData[`Respuesta${i}`] || '-';
                             
                             // Limpiar respuestas que parezcan fechas ISO
                             if (typeof respuesta === 'string' && respuesta.includes('T') && respuesta.includes('.000Z')) {
-                                // Es una fecha ISO, probablemente un error
-                                respuesta = respuesta.split('T')[0]; // Tomar solo la fecha
+                                respuesta = respuesta.split('T')[0];
                             }
                             
                             respuestas.push(respuesta);
                         }
-                        
+
                         // Mostrar en el grid de diagnóstico
                         for (let i = 0; i < 4; i++) {
                             const labelElem = document.getElementById(`diagnosticoLabel${i+1}`);
                             const valElem = document.getElementById(`diagnosticoVal${i+1}`);
                             
                             if (labelElem) {
-                                // Usar la pregunta guardada o un placeholder
                                 labelElem.textContent = preguntas[i] ? preguntas[i].toUpperCase() : 
                                                         (currentServiceQuestions[i] || `PREGUNTA ${i+1}`).toUpperCase();
                             }
@@ -747,7 +705,7 @@
                             extraContainer.innerHTML = '';
                             
                             for (let i = 4; i < 6; i++) {
-                                if (preguntas[i] || respuestas[i] !== '-') {
+                                if (preguntas[i] || (respuestas[i] && respuestas[i] !== '-')) {
                                     const extraItem = document.createElement('div');
                                     extraItem.className = 'diagnostico-item col-span-1';
                                     extraItem.innerHTML = `
@@ -758,18 +716,18 @@
                                 }
                             }
                         }
-                        
+
                         document.getElementById('remoteQuoteBanner').classList.remove('hidden');
                         document.getElementById('bannerDetails').innerHTML = `Folio: ${folio}<br>${cotizacionData.Servicio || ''}`;
-                        document.getElementById('folioSearchResult').innerHTML = '✅ Cotización cargada';
-                        
-                        showToast('Cotización cargada');
+                        document.getElementById('folioSearchResult').innerHTML = '✅ Solicitud cargada';
+
+                        showToast('Solicitud cargada');
                     }
                 } catch (error) {
                     console.error('Error:', error);
                 }
             }
-            
+
             updateServiceLock();
         }
 
@@ -778,26 +736,26 @@
                 showToast('Selecciona un servicio primero', 'error');
                 return;
             }
-            
+
             const familia = serviceFamily[currentService];
             if (!familia) return;
-            
+
             showToast('Cargando materiales...');
-            
+
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?materiales=${encodeURIComponent(familia)}`);
                 const data = await response.json();
-                
+
                 if (data.success && data.materiales) {
                     materialDatabase = data.materiales;
-                    
+
                     items = data.materiales.slice(0, 4).map(mat => ({
                         id: Date.now() + Math.random(),
                         desc: mat.Descripcion,
                         qty: 1,
                         price: mat.PrecioBase || 0
                     }));
-                    
+
                     renderItems();
                     calculateTotal();
                     showToast(`${items.length} materiales cargados`);
@@ -826,17 +784,17 @@
             items.forEach((item, index) => {
                 const qty = item.qty || 1;
                 const price = item.price || 0;
-                
+
                 html += `
                 <tr class="border-b border-gray-700">
                     <td class="py-3 px-2">
                         <input type="text" value="${item.desc.replace(/"/g, '&quot;')}" onchange="updateItemDesc(${index}, this.value)" class="w-full bg-transparent border-0 focus:ring-0 text-white text-sm">
                     </td>
                     <td class="py-3 px-2">
-                        <input type="number" min="1" value="${qty}" onchange="updateItemQty(${index}, this.value)" class="w-20 text-center bg-[#1a1c22] border border-[#2a2c33] rounded-full py-1 px-2 text-sm text-white">
+                        <input type="number" min="1" value="${qty}" onchange="updateItemQty(${index}, this.value)" class="w-20 text-center bg-[#0f1320] border border-[#2f3a4a] rounded-full py-1 px-2 text-sm text-white">
                     </td>
                     <td class="py-3 px-2">
-                        <input type="number" min="0" step="0.01" value="${price}" onchange="updateItemPrice(${index}, this.value)" class="w-32 text-right bg-[#1a1c22] border border-[#2a2c33] rounded-full py-1 px-2 text-sm text-white">
+                        <input type="number" min="0" step="0.01" value="${price}" onchange="updateItemPrice(${index}, this.value)" class="w-32 text-right bg-[#0f1320] border border-[#2f3a4a] rounded-full py-1 px-2 text-sm text-white">
                     </td>
                     <td class="py-3 px-2 text-right font-semibold text-white">$${(qty * price).toFixed(2)}</td>
                     <td class="py-3 px-2 text-center">
@@ -856,43 +814,43 @@
         };
 
         window.updateItemDesc = (index, val) => { items[index].desc = val; calculateTotal(); };
-        window.updateItemQty = (index, val) => { 
-            items[index].qty = Math.max(1, parseInt(val) || 1); 
-            renderItems(); 
-            calculateTotal(); 
+        window.updateItemQty = (index, val) => {
+            items[index].qty = Math.max(1, parseInt(val) || 1);
+            renderItems();
+            calculateTotal();
         };
-        window.updateItemPrice = (index, val) => { 
-            items[index].price = parseFloat(val) || 0; 
-            renderItems(); 
-            calculateTotal(); 
+        window.updateItemPrice = (index, val) => {
+            items[index].price = parseFloat(val) || 0;
+            renderItems();
+            calculateTotal();
         };
         window.removeItem = (index) => { items.splice(index, 1); renderItems(); calculateTotal(); };
 
         window.filterMaterials = function() {
             const searchTerm = document.getElementById('materialSearch').value.toLowerCase();
             const resultsDiv = document.getElementById('searchResults');
-            
+
             if (searchTerm.length < 2 || materialDatabase.length === 0) {
                 resultsDiv.classList.add('hidden');
                 return;
             }
-            
-            const filtered = materialDatabase.filter(mat => 
+
+            const filtered = materialDatabase.filter(mat =>
                 mat.Descripcion.toLowerCase().includes(searchTerm)
             );
-            
+
             if (filtered.length === 0) {
                 resultsDiv.innerHTML = '<div class="p-3 text-gray-400">No hay coincidencias</div>';
             } else {
                 resultsDiv.innerHTML = filtered.slice(0, 5).map(mat => `
-                    <div onclick="addMaterialFromSearch('${mat.Descripcion.replace(/'/g, "\\'")}', ${mat.PrecioBase || 0})" 
-                         class="p-3 hover:bg-[#0077ff]/10 cursor-pointer border-b border-[#0077ff]/20 last:border-0">
+                    <div onclick="addMaterialFromSearch('${mat.Descripcion.replace(/'/g, "\\'")}', ${mat.PrecioBase || 0})"
+                         class="p-3 hover:bg-gold-500/10 cursor-pointer border-b border-gold-500/20 last:border-0">
                         <div class="font-semibold text-white">${mat.Descripcion}</div>
-                        <div class="text-xs text-[#ffbb00]">$${mat.PrecioBase}</div>
+                        <div class="text-xs text-gold-400">$${mat.PrecioBase}</div>
                     </div>
                 `).join('');
             }
-            
+
             resultsDiv.classList.remove('hidden');
         };
 
@@ -913,10 +871,10 @@
         window.calculateTotal = () => {
             const labor = parseFloat(document.getElementById('laborCost').value) || 0;
             const taxRate = parseFloat(document.getElementById('taxRate').value) || 16;
-            
+
             let subtotal = 0;
             items.forEach(i => subtotal += ((i.qty || 1) * (i.price || 0)));
-            
+
             const tax = subtotal * (taxRate / 100);
             const total = subtotal + tax + labor;
 
@@ -924,7 +882,7 @@
             document.getElementById('taxDisplay').innerText = '$' + tax.toFixed(2);
             document.getElementById('laborDisplay').innerText = '$' + labor.toFixed(2);
             document.getElementById('totalAmount').innerText = '$' + total.toFixed(2);
-            
+
             return { subtotal, tax, labor, total, taxRate };
         };
 
@@ -933,10 +891,10 @@
                 showToast('Error: Librería PDF no cargada', 'error');
                 return;
             }
-            
+
             const client = document.getElementById('clientName').value.trim() || 'Cliente';
             const { subtotal, tax, labor, total, taxRate } = calculateTotal();
-            const folio = currentFolio || ('OR-' + Date.now().toString().slice(-8));
+            const folio = currentFolio || ('HZ-' + Date.now().toString().slice(-6));
             const fecha = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
             const address = document.getElementById('clientAddress').value || '';
             const phone = document.getElementById('clientPhone').value || '';
@@ -946,25 +904,25 @@
                 const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
                 // Fondo oscuro elegante
-                doc.setFillColor(18, 20, 23);
+                doc.setFillColor(10, 10, 15);
                 doc.rect(0, 0, 210, 297, 'F');
 
                 // Borde decorativo
-                doc.setDrawColor(0, 119, 255);
+                doc.setDrawColor(255, 215, 0);
                 doc.setLineWidth(0.5);
                 doc.rect(5, 5, 200, 287);
 
                 // Header con logo
-                doc.setFillColor(26, 28, 35);
+                doc.setFillColor(13, 28, 68);
                 doc.rect(10, 10, 190, 30, 'F');
-                doc.setTextColor(0, 119, 255);
+                doc.setTextColor(255, 215, 0);
                 doc.setFontSize(20);
                 doc.setFont('helvetica', 'bold');
-                doc.text('OR SERVICIOS', 15, 28);
+                doc.text('HERNÁNDEZ', 15, 28);
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(9);
-                doc.text('Ingeniería de Mantenimiento', 15, 35);
-                
+                doc.text('Electricidad y Refrigeración', 15, 35);
+
                 doc.setFontSize(11);
                 doc.setFont('helvetica', 'bold');
                 doc.text(`FOLIO: ${folio}`, 180, 28, { align: 'right' });
@@ -972,11 +930,11 @@
                 doc.text(fecha, 180, 35, { align: 'right' });
 
                 // Datos del cliente
-                doc.setTextColor(0, 119, 255);
+                doc.setTextColor(255, 215, 0);
                 doc.setFontSize(14);
                 doc.setFont('helvetica', 'bold');
                 doc.text('DATOS DEL CLIENTE', 15, 55);
-                doc.setDrawColor(0, 119, 255);
+                doc.setDrawColor(255, 215, 0);
                 doc.line(15, 57, 195, 57);
 
                 doc.setTextColor(255, 255, 255);
@@ -987,7 +945,7 @@
                 if (address) doc.text(`Dirección: ${address}`, 15, 81);
 
                 // Diagnóstico con etiquetas reales
-                doc.setTextColor(0, 119, 255);
+                doc.setTextColor(255, 215, 0);
                 doc.setFontSize(14);
                 doc.setFont('helvetica', 'bold');
                 doc.text('DIAGNÓSTICO TÉCNICO', 15, 97);
@@ -996,7 +954,7 @@
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(10);
                 
-                // Obtener las etiquetas y valores actuales
+                // Obtener etiquetas y valores actuales
                 const label1 = document.getElementById('diagnosticoLabel1').textContent;
                 const label2 = document.getElementById('diagnosticoLabel2').textContent;
                 const label3 = document.getElementById('diagnosticoLabel3').textContent;
@@ -1013,13 +971,13 @@
                 doc.text(label4 + ':', 110, 119);
                 
                 doc.setFont('helvetica', 'normal');
-                doc.text(val1, 15 + this.getTextWidth(label1 + ':', 'bold') + 2, 109);
-                doc.text(val2, 110 + this.getTextWidth(label2 + ':', 'bold') + 2, 109);
-                doc.text(val3, 15 + this.getTextWidth(label3 + ':', 'bold') + 2, 119);
-                doc.text(val4, 110 + this.getTextWidth(label4 + ':', 'bold') + 2, 119);
+                doc.text(val1, 15 + (label1.length * 2.5) + 5, 109);
+                doc.text(val2, 110 + (label2.length * 2.5) + 5, 109);
+                doc.text(val3, 15 + (label3.length * 2.5) + 5, 119);
+                doc.text(val4, 110 + (label4.length * 2.5) + 5, 119);
 
                 // Tabla de conceptos
-                doc.setTextColor(0, 119, 255);
+                doc.setTextColor(255, 215, 0);
                 doc.setFontSize(14);
                 doc.setFont('helvetica', 'bold');
                 doc.text('CONCEPTOS', 15, 135);
@@ -1031,7 +989,7 @@
                     '$' + i.price.toFixed(2),
                     '$' + (i.qty * i.price).toFixed(2)
                 ]);
-                
+
                 if (labor > 0) {
                     bodyRows.push(['Mano de obra profesional', '1', '$' + labor.toFixed(2), '$' + labor.toFixed(2)]);
                 }
@@ -1041,18 +999,18 @@
                     head: [['Descripción', 'Cant.', 'Precio Unit.', 'Importe']],
                     body: bodyRows,
                     theme: 'grid',
-                    headStyles: { 
-                        fillColor: [0, 119, 255], 
-                        textColor: [255,255,255],
+                    headStyles: {
+                        fillColor: [255, 215, 0],
+                        textColor: [0,0,0],
                         fontStyle: 'bold',
                         fontSize: 9
                     },
-                    bodyStyles: { 
+                    bodyStyles: {
                         textColor: [255,255,255],
                         fontSize: 9,
-                        fillColor: [26, 28, 35]
+                        fillColor: [20, 25, 35]
                     },
-                    alternateRowStyles: { fillColor: [36, 38, 45] },
+                    alternateRowStyles: { fillColor: [30, 35, 45] },
                     columnStyles: {
                         0: { cellWidth: 80 },
                         1: { cellWidth: 25, halign: 'center' },
@@ -1065,46 +1023,46 @@
                 const finalY = doc.previousAutoTable.finalY + 10;
 
                 // Totales
-                doc.setFillColor(26, 28, 35);
+                doc.setFillColor(20, 25, 35);
                 doc.roundedRect(120, finalY - 5, 70, 30, 3, 3, 'F');
-                doc.setDrawColor(255, 187, 0);
+                doc.setDrawColor(255, 215, 0);
                 doc.roundedRect(120, finalY - 5, 70, 30, 3, 3, 'S');
 
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(9);
                 doc.text('Subtotal:', 125, finalY + 2);
                 doc.text('$' + subtotal.toFixed(2), 185, finalY + 2, { align: 'right' });
-                
+
                 doc.text(`IVA (${taxRate}%):`, 125, finalY + 9);
                 doc.text('$' + tax.toFixed(2), 185, finalY + 9, { align: 'right' });
-                
+
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.setTextColor(255, 187, 0);
+                doc.setTextColor(255, 215, 0);
                 doc.text('TOTAL:', 125, finalY + 22);
                 doc.text('$' + total.toFixed(2), 185, finalY + 22, { align: 'right' });
 
                 // Términos
-                doc.setDrawColor(0, 119, 255);
+                doc.setDrawColor(255, 215, 0);
                 doc.line(15, 245, 195, 245);
-                
+
                 doc.setTextColor(150, 150, 150);
                 doc.setFontSize(8);
                 doc.text('Términos y condiciones:', 15, 253);
                 doc.text('• Válida por 15 días', 15, 259);
                 doc.text('• 50% de anticipo', 15, 264);
                 doc.text('• Precios incluyen IVA', 15, 269);
-                
+
                 // Firmas
-                doc.text('_________________________', 35, 285);
-                doc.text('Técnico responsable', 45, 292, { align: 'center' });
-                doc.text('_________________________', 135, 285);
-                doc.text('Firma del cliente', 150, 292, { align: 'center' });
+                doc.text('_________________________', 35, 280);
+                doc.text('Técnico responsable', 45, 287, { align: 'center' });
+                doc.text('_________________________', 135, 280);
+                doc.text('Firma del cliente', 150, 287, { align: 'center' });
 
                 pdfDoc = doc;
                 document.getElementById('pdfContent').innerHTML = `<iframe src="${doc.output('datauristring')}" width="100%" height="100%" style="border: none;"></iframe>`;
                 document.getElementById('pdfModal').classList.add('active');
-                
+
             } catch (error) {
                 console.error('Error:', error);
                 showToast('Error al generar PDF', 'error');
@@ -1116,7 +1074,7 @@
 
         window.sharePDF = () => {
             const msg = `📄 Cotización ${currentFolio || 'sin-folio'} lista para revisión.`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/528123201690?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
         window.shareWhatsApp = () => {
@@ -1125,16 +1083,16 @@
                 showToast('No hay datos de cliente', 'error');
                 return;
             }
-            
+
             const { total } = calculateTotal();
-            
-            let msg = `*COTIZACIÓN OR SERVICIOS*\n`;
+
+            let msg = `⚡❄️ *COTIZACIÓN HERNÁNDEZ*\n`;
             msg += `👤 Cliente: ${client}\n`;
             msg += `🔨 Servicio: ${serviceFamily[currentService] || 'General'}\n`;
             if(currentFolio) msg += `📋 Folio: ${currentFolio}\n`;
             msg += `💰 Total: $${total.toFixed(2)}`;
-            
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+
+            window.open(`https://wa.me/528123201690?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
         window.updateRemoteStatus = async () => {
@@ -1151,8 +1109,7 @@
             try {
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // 🟢 text/plain para evitar preflight
                     body: JSON.stringify({
                         action: 'updateStatus',
                         folio: currentFolio,
@@ -1163,14 +1120,14 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     showToast('Estado actualizado');
                     document.getElementById('bannerDetails').innerHTML = `Folio: ${currentFolio}<br>Estado: ${nuevoEstado}`;
                 } else {
                     showToast('Error: ' + (data.error || 'Desconocido'), 'error');
                 }
-                
+
             } catch (error) {
                 console.error('Error:', error);
                 showToast('Error de conexión', 'error');
@@ -1181,17 +1138,10 @@
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
             const icon = toast.querySelector('i');
-            icon.className = type === 'error' ? 'fas fa-circle-exclamation text-red-500 text-lg' : 'fas fa-circle-check text-[#ffbb00] text-lg';
+            icon.className = type === 'error' ? 'fas fa-circle-exclamation text-red-500 text-lg' : 'fas fa-circle-check text-gold-400 text-lg';
             toast.classList.remove('opacity-0');
             setTimeout(() => toast.classList.add('opacity-0'), 2800);
         }
-
-        // Helper para medir texto en PDF (simplificado)
-        function getTextWidth(text, fontStyle) {
-            // Aproximación simple: ~5 unidades por carácter
-            return text.length * 2.5;
-        }
-        window.getTextWidth = getTextWidth;
 
         document.addEventListener('DOMContentLoaded', () => {
             loadFromFolio().then(() => {
