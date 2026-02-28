@@ -268,17 +268,27 @@
             margin-top: 4px;
             color: var(--pure-white);
         }
-        
-        /* Estilo mejorado para el botón agregar en sugerencias */
-        .add-material-btn {
+
+        /* Estilo para botón Agregar - visible y llamativo */
+        .btn-add-material {
             background: #FFD700 !important;
             color: #000000 !important;
             font-weight: bold !important;
-            border: none !important;
+            border: 2px solid #FFD700 !important;
         }
-        .add-material-btn:hover {
+        .btn-add-material:hover {
             background: #ffffff !important;
-            color: #000000 !important;
+            border-color: #ffffff !important;
+        }
+
+        /* Estilo para botón Descargar en PDF - verde visible */
+        .btn-download-pdf {
+            background: #10b981 !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+        .btn-download-pdf:hover {
+            background: #059669 !important;
         }
     </style>
 </head>
@@ -308,14 +318,14 @@
     </header>
 
     <main class="max-w-4xl mx-auto pt-28 pb-16 px-4 space-y-6">
-        <!-- Buscador de folio - AHORA CON TOLERANCIA A ERRORES -->
+        <!-- Buscador de folio - CON TOLERANCIA TOTAL A ERRORES -->
         <div class="glass-panel rounded-3xl p-6">
             <div class="section-title">
                 <i class="fas fa-search"></i> BUSCAR SOLICITUD
             </div>
             <div class="folio-search">
                 <input type="text" id="folioSearchInput" placeholder="Ej: HZ-260227-3921, 2602273921 o hz260227">
-                <button onclick="searchFolioFlexible()">
+                <button onclick="buscarFolioFlexible()">
                     <i class="fas fa-arrow-right mr-2"></i> Cargar
                 </button>
             </div>
@@ -420,7 +430,7 @@
                     <button onclick="loadMaterialsFromCloud()" id="suggestMaterialsBtn" class="btn-tactile text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 px-4 py-2 rounded-full border border-blue-500/30">
                         <i class="fas fa-cloud-download-alt mr-1"></i> Sugerir
                     </button>
-                    <button onclick="addItem()" class="btn-tactile text-sm add-material-btn px-4 py-2 rounded-full font-bold">
+                    <button onclick="addItem()" class="btn-tactile text-sm btn-add-material px-4 py-2 rounded-full font-bold">
                         <i class="fas fa-plus-circle mr-1"></i> Agregar
                     </button>
                 </div>
@@ -451,7 +461,7 @@
                 </table>
             </div>
 
-            <!-- Solo Mano de obra (IVA ELIMINADO) -->
+            <!-- Solo Mano de obra (IVA ELIMINADO COMPLETAMENTE) -->
             <div class="grid grid-cols-1 gap-4 mt-6">
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Mano de obra ($)</label>
@@ -479,7 +489,7 @@
 
         <!-- Botones de acción -->
         <div class="flex flex-col md:flex-row gap-3">
-            <button onclick="generatePDF()" class="btn-tactile flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 rounded-2xl text-lg shadow-lg shadow-blue-900/50">
+            <button onclick="autorizarPDF()" class="btn-tactile flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 rounded-2xl text-lg shadow-lg shadow-blue-900/50">
                 <i class="fas fa-file-pdf mr-2"></i> GENERAR PDF
             </button>
             <button onclick="shareWhatsApp()" class="btn-tactile flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 rounded-2xl text-lg">
@@ -504,7 +514,7 @@
                 <button onclick="closePDF()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-xl text-sm">
                     <i class="fas fa-times mr-1"></i>Cerrar
                 </button>
-                <button onclick="downloadPDF()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl text-sm font-bold">
+                <button onclick="downloadPDF()" class="flex-1 btn-download-pdf py-2 rounded-xl text-sm font-bold">
                     <i class="fas fa-download mr-1"></i>Descargar
                 </button>
                 <button onclick="sharePDF()" class="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white py-2 rounded-xl text-sm font-bold">
@@ -522,10 +532,17 @@
 
     <script>
         // ============================================
-        // CONFIGURACIÓN
+        // CONFIGURACIÓN - URL CORRECTA DEL BACKEND
         // ============================================
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7lZROJ1eAdkchovUEVOMlHjme5Xo7y-HpH-NIFBZyW4EDfInXesrrBdqftMSQDQQ/exec';
         const API_TOKEN = 'HERNANDEZ2024_SECRET_TOKEN';
+
+        // ===== PIN DE TECNICOS =====
+        const tecnicosPIN = {
+            "1111": "Juan",
+            "2222": "Pedro",
+            "3333": "Maria"
+        };
 
         // ============================================
         // MAPEO DE PREGUNTAS POR SERVICIO
@@ -611,50 +628,83 @@
         }
 
         // ============================================
-        // NUEVA FUNCIÓN: BÚSQUEDA FLEXIBLE DE FOLIO
+        // FUNCIONES DE NORMALIZACIÓN DE FOLIO (TOLERANTE)
         // ============================================
-        function normalizeFolio(input) {
+        function normalizarFolio(input) {
             if (!input) return '';
-            
-            // Eliminar todo excepto letras y números
-            let normalized = input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-            
-            // Si empieza con HZ, mantenerlo, si no, asumir que es el número
-            if (!normalized.startsWith('HZ')) {
-                normalized = 'HZ' + normalized;
-            }
-            
-            return normalized;
+
+            // Limpia todo excepto letras/números y sube a mayúsculas
+            let clean = input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+            // Si el usuario escribió prefijo de 2-3 letras, respétalo.
+            // Si no, usa HZ por defecto.
+            const hasPrefix = /^[A-Z]{2,3}\d+/.test(clean);
+            if (!hasPrefix) clean = 'HZ' + clean;
+
+            return clean;
         }
 
-        async function searchFolioFlexible() {
+        function folioConGuiones(folioNormalizado) {
+            // Convierte HZ2602273921 -> HZ-260227-3921 (si alcanza longitud)
+            const m = folioNormalizado.match(/^([A-Z]{2,3})(\d{6})(\d{4,})$/);
+            if (!m) return folioNormalizado;
+            return `${m[1]}-${m[2]}-${m[3]}`;
+        }
+
+        function folioCandidates(rawInput) {
+            const rawTrim = (rawInput || '').trim();
+            const norm = normalizarFolio(rawTrim);
+            const dashed = folioConGuiones(norm);
+
+            // También intenta "raw limpio" sin tocar prefijo (por si backend guarda literal raro)
+            const rawCleanUpper = rawTrim.replace(/\s+/g, '').toUpperCase();
+
+            // Orden importa: primero lo que el usuario escribió (pero limpio), luego normalizado, luego con guiones
+            const list = [rawTrim, rawCleanUpper, norm, dashed]
+                .filter(Boolean)
+                .map(x => x.trim())
+                .filter(x => x.length >= 3);
+
+            // Quita duplicados
+            return [...new Set(list)];
+        }
+
+        // ============================================
+        // NUEVA FUNCIÓN DE BÚSQUEDA FLEXIBLE (PRUEBA MÚLTIPLES FORMATOS)
+        // ============================================
+        async function buscarFolioFlexible() {
             const rawFolio = document.getElementById('folioSearchInput').value.trim();
             if (!rawFolio) {
                 showToast('Ingresa un folio válido', 'error');
                 return;
             }
 
-            const normalizedFolio = normalizeFolio(rawFolio);
             document.getElementById('folioSearchResult').innerHTML = 'Buscando...';
 
-            try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?folio=${encodeURIComponent(normalizedFolio)}`);
-                const data = await response.json();
+            const tries = folioCandidates(rawFolio);
 
-                if (data.success && data.cotizacion) {
-                    const url = new URL(window.location);
-                    url.searchParams.set('folio', normalizedFolio);
-                    window.history.pushState({}, '', url);
-                    
-                    // Mensaje amigable para el cliente
-                    showToast('✅ ¡Perfecto! Folio encontrado');
-                    document.getElementById('folioSearchResult').innerHTML = '✅ Solicitud cargada correctamente';
-                    
-                    window.location.reload();
-                } else {
-                    document.getElementById('folioSearchResult').innerHTML = '❌ Folio no encontrado. Verifica el número';
-                    showToast('Folio no encontrado. Intenta con otro formato', 'error');
+            try {
+                for (const candidate of tries) {
+                    const response = await fetch(`${APPS_SCRIPT_URL}?folio=${encodeURIComponent(candidate)}`);
+                    const data = await response.json();
+
+                    if (data && data.success && data.cotizacion) {
+                        // Canoniza URL con el que sí funcionó
+                        const url = new URL(window.location);
+                        url.searchParams.set('folio', candidate);
+                        window.history.pushState({}, '', url);
+
+                        showToast('✅ ¡Folio encontrado!');
+                        document.getElementById('folioSearchResult').innerHTML = `✅ Solicitud cargada (${candidate})`;
+                        window.location.reload();
+                        return;
+                    }
                 }
+
+                document.getElementById('folioSearchResult').innerHTML =
+                    '❌ Folio no encontrado. Prueba sin guiones o verifica el número.';
+                showToast('Folio no encontrado', 'error');
+
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('folioSearchResult').innerHTML = '❌ Error de conexión';
@@ -662,97 +712,130 @@
             }
         }
 
+        // ============================================
+        // LOAD FROM FOLIO MEJORADO (PRUEBA MÚLTIPLES FORMATOS)
+        // ============================================
         async function loadFromFolio() {
             const params = new URLSearchParams(window.location.search);
-            const folio = params.get('folio');
+            const folioParam = params.get('folio');
+            
+            if (!folioParam) {
+                updateServiceLock();
+                return;
+            }
 
-            if (folio) {
-                currentFolio = folio;
-                document.getElementById('folioIndicator').innerText = folio;
-                document.getElementById('folioIndicator').classList.remove('hidden');
-                document.getElementById('folioSearchInput').value = folio;
+            const tries = folioCandidates(folioParam);
+            let folioEncontrado = null;
+            let dataEncontrada = null;
 
-                showToast('Cargando solicitud...');
-
+            for (const candidate of tries) {
                 try {
-                    const response = await fetch(`${APPS_SCRIPT_URL}?folio=${encodeURIComponent(folio)}`);
+                    const response = await fetch(`${APPS_SCRIPT_URL}?folio=${encodeURIComponent(candidate)}`);
                     const data = await response.json();
-
-                    if (data.success && data.cotizacion) {
-                        cotizacionData = data.cotizacion;
-
-                        document.getElementById('clientName').value = cotizacionData.Nombre_Cliente || '';
-                        document.getElementById('clientPhone').value = cotizacionData.Telefono || '';
-                        document.getElementById('clientAddress').value = cotizacionData.Direccion || '';
-
-                        if (cotizacionData.Servicio) {
-                            folioService = detectServiceFromText(cotizacionData.Servicio);
-                            selectService(folioService);
-                            currentService = folioService;
-                            currentServiceQuestions = serviceQuestions[folioService] || [];
-
-                            setTimeout(() => loadMaterialsFromCloud(), 500);
-                        }
-
-                        // Cargar diagnóstico con etiquetas reales
-                        const preguntas = [];
-                        const respuestas = [];
+                    if (data && data.success && data.cotizacion) {
+                        folioEncontrado = candidate;
+                        dataEncontrada = data.cotizacion;
                         
-                        // Extraer hasta 6 preguntas y respuestas
-                        for (let i = 1; i <= 6; i++) {
-                            preguntas.push(cotizacionData[`Pregunta${i}`] || '');
-                            
-                            let respuesta = cotizacionData[`Respuesta${i}`] || '-';
-                            
-                            // Limpiar respuestas que parezcan fechas ISO
-                            if (typeof respuesta === 'string' && respuesta.includes('T') && respuesta.includes('.000Z')) {
-                                respuesta = respuesta.split('T')[0];
-                            }
-                            
-                            respuestas.push(respuesta);
-                        }
-
-                        // Mostrar en el grid de diagnóstico
-                        for (let i = 0; i < 4; i++) {
-                            const labelElem = document.getElementById(`diagnosticoLabel${i+1}`);
-                            const valElem = document.getElementById(`diagnosticoVal${i+1}`);
-                            
-                            if (labelElem) {
-                                labelElem.textContent = preguntas[i] ? preguntas[i].toUpperCase() : 
-                                                        (currentServiceQuestions[i] || `PREGUNTA ${i+1}`).toUpperCase();
-                            }
-                            if (valElem) {
-                                valElem.textContent = respuestas[i] || '-';
-                            }
-                        }
+                        // canoniza la URL
+                        const url = new URL(window.location);
+                        url.searchParams.set('folio', candidate);
+                        window.history.replaceState({}, '', url);
                         
-                        // Mostrar preguntas 5 y 6 si existen
-                        const extraContainer = document.getElementById('diagnosticoExtra');
-                        if (extraContainer) {
-                            extraContainer.innerHTML = '';
-                            
-                            for (let i = 4; i < 6; i++) {
-                                if (preguntas[i] || (respuestas[i] && respuestas[i] !== '-')) {
-                                    const extraItem = document.createElement('div');
-                                    extraItem.className = 'diagnostico-item col-span-1';
-                                    extraItem.innerHTML = `
-                                        <div class="diagnostico-label">${(preguntas[i] || `PREGUNTA ${i+1}`).toUpperCase()}</div>
-                                        <div class="diagnostico-value">${respuestas[i] || '-'}</div>
-                                    `;
-                                    extraContainer.appendChild(extraItem);
-                                }
-                            }
-                        }
-
-                        document.getElementById('remoteQuoteBanner').classList.remove('hidden');
-                        document.getElementById('bannerDetails').innerHTML = `Folio: ${folio}<br>${cotizacionData.Servicio || ''}`;
-                        document.getElementById('folioSearchResult').innerHTML = '✅ Solicitud cargada';
-
-                        showToast('Solicitud cargada');
+                        break;
                     }
-                } catch (error) {
-                    console.error('Error:', error);
+                } catch (e) {
+                    // si falla un candidate por red, seguimos a otro
+                    console.log('Error con candidato', candidate, e);
                 }
+            }
+
+            if (!folioEncontrado) {
+                console.log('No se encontró ningún folio válido');
+                updateServiceLock();
+                return;
+            }
+
+            // Si llegamos aquí, tenemos folio y datos
+            currentFolio = folioEncontrado;
+            cotizacionData = dataEncontrada;
+            
+            document.getElementById('folioIndicator').innerText = folioEncontrado;
+            document.getElementById('folioIndicator').classList.remove('hidden');
+            document.getElementById('folioSearchInput').value = folioEncontrado;
+
+            showToast('Cargando solicitud...');
+
+            try {
+                document.getElementById('clientName').value = cotizacionData.Nombre_Cliente || '';
+                document.getElementById('clientPhone').value = cotizacionData.Telefono || '';
+                document.getElementById('clientAddress').value = cotizacionData.Direccion || '';
+
+                if (cotizacionData.Servicio) {
+                    folioService = detectServiceFromText(cotizacionData.Servicio);
+                    selectService(folioService);
+                    currentService = folioService;
+                    currentServiceQuestions = serviceQuestions[folioService] || [];
+
+                    setTimeout(() => loadMaterialsFromCloud(), 500);
+                }
+
+                // Cargar diagnóstico con etiquetas reales
+                const preguntas = [];
+                const respuestas = [];
+                
+                // Extraer hasta 6 preguntas y respuestas
+                for (let i = 1; i <= 6; i++) {
+                    preguntas.push(cotizacionData[`Pregunta${i}`] || '');
+                    
+                    let respuesta = cotizacionData[`Respuesta${i}`] || '-';
+                    
+                    // Limpiar respuestas que parezcan fechas ISO
+                    if (typeof respuesta === 'string' && respuesta.includes('T') && respuesta.includes('.000Z')) {
+                        respuesta = respuesta.split('T')[0];
+                    }
+                    
+                    respuestas.push(respuesta);
+                }
+
+                // Mostrar en el grid de diagnóstico
+                for (let i = 0; i < 4; i++) {
+                    const labelElem = document.getElementById(`diagnosticoLabel${i+1}`);
+                    const valElem = document.getElementById(`diagnosticoVal${i+1}`);
+                    
+                    if (labelElem) {
+                        labelElem.textContent = preguntas[i] ? preguntas[i].toUpperCase() : 
+                                                (currentServiceQuestions[i] || `PREGUNTA ${i+1}`).toUpperCase();
+                    }
+                    if (valElem) {
+                        valElem.textContent = respuestas[i] || '-';
+                    }
+                }
+                
+                // Mostrar preguntas 5 y 6 si existen
+                const extraContainer = document.getElementById('diagnosticoExtra');
+                if (extraContainer) {
+                    extraContainer.innerHTML = '';
+                    
+                    for (let i = 4; i < 6; i++) {
+                        if (preguntas[i] || (respuestas[i] && respuestas[i] !== '-')) {
+                            const extraItem = document.createElement('div');
+                            extraItem.className = 'diagnostico-item col-span-1';
+                            extraItem.innerHTML = `
+                                <div class="diagnostico-label">${(preguntas[i] || `PREGUNTA ${i+1}`).toUpperCase()}</div>
+                                <div class="diagnostico-value">${respuestas[i] || '-'}</div>
+                            `;
+                            extraContainer.appendChild(extraItem);
+                        }
+                    }
+                }
+
+                document.getElementById('remoteQuoteBanner').classList.remove('hidden');
+                document.getElementById('bannerDetails').innerHTML = `Folio: ${folioEncontrado}<br>${cotizacionData.Servicio || ''}`;
+                document.getElementById('folioSearchResult').innerHTML = '✅ Solicitud cargada';
+
+                showToast('Solicitud cargada');
+            } catch (error) {
+                console.error('Error:', error);
             }
 
             updateServiceLock();
@@ -895,6 +978,9 @@
             showToast('Material agregado');
         };
 
+        // ============================================
+        // CÁLCULO DE TOTALES SIN IVA
+        // ============================================
         window.calculateTotal = () => {
             const labor = parseFloat(document.getElementById('laborCost').value) || 0;
 
@@ -910,7 +996,39 @@
             return { subtotal, labor, total };
         };
 
-        window.generatePDF = () => {
+        // ===== FUNCIONES DE PIN =====
+        async function pedirPIN() {
+            let pin = prompt("🔐 Introduce tu PIN técnico:");
+
+            if (!pin) {
+                alert("❌ Cancelado.");
+                return false;
+            }
+
+            if (!tecnicosPIN[pin]) {
+                alert("❌ PIN incorrecto.");
+                return false;
+            }
+
+            console.log("✅ PDF autorizado por:", tecnicosPIN[pin]);
+            showToast(`Bienvenido ${tecnicosPIN[pin]}`, 'success');
+            return true;
+        }
+
+        async function autorizarPDF() {
+            let autorizado = await pedirPIN();
+
+            if (!autorizado) {
+                return;
+            }
+
+            generarPDF();
+        }
+
+        // ============================================
+        // GENERACIÓN DE PDF SIN IVA
+        // ============================================
+        window.generarPDF = () => {
             if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
                 showToast('Error: Librería PDF no cargada', 'error');
                 return;
@@ -1056,6 +1174,9 @@
                 doc.setFontSize(9);
                 doc.text('Subtotal:', 125, finalY + 2);
                 doc.text('$' + subtotal.toFixed(2), 185, finalY + 2, { align: 'right' });
+
+                doc.text('Mano de obra:', 125, finalY + 9);
+                doc.text('$' + labor.toFixed(2), 185, finalY + 9, { align: 'right' });
 
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
